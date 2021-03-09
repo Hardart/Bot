@@ -28,8 +28,8 @@ module.exports = {
 			hash: object.hash,
 			access_token: token
 		}).then(data => {
-			const response = data.response[0]
-			const attach = 'photo' + response.owner_id + '_' + response.id
+			const user = data.response[0]
+			const attach = 'photo' + user.owner_id + '_' + user.id
 			bot.sendMessage(userID, mess, attach)
 		})
 	},
