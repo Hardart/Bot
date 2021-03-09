@@ -1,5 +1,7 @@
+require('dotenv/config')
 const { photo } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
+const formidableMiddleware = require('express-formidable');
 const express = require('express')
 const mongoose = require('mongoose')
 const VkBot = require('node-vk-bot-api')
@@ -7,16 +9,17 @@ const Scene = require('node-vk-bot-api/lib/scene')
 const Session = require('node-vk-bot-api/lib/session')
 const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
-require('dotenv/config')
+const usersRoute = require('./routes/users')
+const TOKEN = process.env.VK_TOKEN
 
 const app = express()
 const PORT = process.env.PORT || 80
 const bot = new VkBot({
-	token: process.env.VK_TOKEN,
+	token: TOKEN,
 	confirmation: process.env.VK_CONFIRM,
 })
-const TOKEN = bot.settings.token
 
+app.use('/post', usersRoute)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -81,28 +84,8 @@ bot.on(async (ctx) => {
 	}
 })
 
-app.get('/post', async (req, res) => {
-	const newPdvn = new Padavan({
-		vk_id: 741368,
-		full_name: "Шакирова Юлия",
-		ren_login: "CCtrain_user52",
-		ren_pass: "rTcv8hd97",
-		w_code: "wel_78Gddfg",
-		options: {
-			hasQ: false,
-			changeCoach: false
-		}
-	})
-	await newPdvn.save()
-	const data = await Padavan.find()
-	res.send(data)
-})
-
 app.post('/', bot.webhookCallback)
 
-app.post('/post', (req, res) => {
-	console.log(req.body)
-})
 
 async function start() {
 	try {
