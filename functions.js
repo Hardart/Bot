@@ -5,7 +5,7 @@ const api = require('node-vk-bot-api/lib/api');
 
 
 module.exports = {
-	photo: async function (filename, userID, token, bot) {
+	photo: async function (filename, userID, token, bot, mess = "") {
 		const url = await api('photos.getMessagesUploadServer', {
 			peer_id: userID,
 			access_token: token
@@ -30,7 +30,7 @@ module.exports = {
 		}).then(data => {
 			const response = data.response[0]
 			const attach = 'photo' + response.owner_id + '_' + response.id
-			bot.sendMessage(userID, "", attach)
+			bot.sendMessage(userID, mess, attach)
 		})
 	},
 	test: () => {
