@@ -5,12 +5,21 @@ const Pdvn = mongoose.Schema({
 	full_name: String,
 	ren_login: String,
 	ren_pass: String,
-	coach: Number,
 	w_code: String,
+	coach_id: Number,
 	options: {
 		hasQ: Boolean,
 		changeCoach: Boolean
 	}
 })
 
-module.exports = mongoose.model('Padavan', Pdvn)
+const Reg_data = mongoose.Schema({
+	ren_login: String,
+	ren_pass: String,
+	w_code: String
+})
+
+module.exports = {
+	Padavan: mongoose.model('Padavan', Pdvn),
+	RegData: mongoose.model('Reg_data', Reg_data)
+}

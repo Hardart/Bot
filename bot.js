@@ -1,8 +1,8 @@
 const { test, photo } = require('./functions');
 const express = require('express');
 const mongoose = require('mongoose')
-const Padavan = require('./models/padavans')
-const RegData = require('./models/reg_data')
+const { Padavan, RegData } = require('./models/padavans')
+// const RegData = require('./models/reg_data')
 const VkBot = require('node-vk-bot-api');
 const Scene = require('node-vk-bot-api/lib/scene');
 const Session = require('node-vk-bot-api/lib/session');
@@ -39,7 +39,7 @@ bot.on(async (ctx) => {
 	const userID = ctx.message.from_id
 	const user = await api('users.get', {
 		user_ids: userID,
-		access_token: bot.settings.token
+		access_token: TOKEN
 	}).then(data => data.response[0])
 
 	const pdvn = await Padavan.find({ "vk_id": userID }).then(data => data)
