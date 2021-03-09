@@ -31,7 +31,7 @@ bot.command('/sport', (ctx) => {
 		.oneTime())
 })
 
-// photo('./Castle.png', 'photo.png', 9128124, TOKEN, bot) //отправка фото
+// photo('./Castle.png', 'photo.png', userID, TOKEN, bot) //отправка фото
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
@@ -102,7 +102,7 @@ async function start() {
 			useUnifiedTopology: true
 		})
 		app.listen(PORT, () => {
-			console.log('Ok');
+			console.log('Server has been started');
 		})
 	}
 	catch (e) {
