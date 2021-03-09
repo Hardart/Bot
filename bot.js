@@ -8,6 +8,7 @@ const Scene = require('node-vk-bot-api/lib/scene');
 const Session = require('node-vk-bot-api/lib/session');
 const Stage = require('node-vk-bot-api/lib/stage');
 const Markup = require('node-vk-bot-api/lib/markup');
+require('dotenv/config')
 
 
 const app = express();
@@ -95,7 +96,7 @@ app.post('/post', (req, res) => {
 
 async function start() {
 	try {
-		await mongoose.connect('mongodb+srv://hardart:134679qaZ@cluster0.6wswz.mongodb.net/mongo', {
+		await mongoose.connect(process.env.DB_CONN, {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true
