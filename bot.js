@@ -2,7 +2,6 @@ const { photo } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
-// const RegData = require('./models/reg_data')
 const VkBot = require('node-vk-bot-api')
 const Scene = require('node-vk-bot-api/lib/scene')
 const Session = require('node-vk-bot-api/lib/session')
@@ -82,8 +81,21 @@ bot.on(async (ctx) => {
 	}
 })
 
-app.get('/post', (req, res) => {
-	res.send("<h1>Post page</h1>")
+app.get('/post', async (req, res) => {
+	const newPdvn = new Padavan({
+		vk_id: 741368,
+		full_name: "Шакирова Юлия",
+		ren_login: "CCtrain_user52",
+		ren_pass: "rTcv8hd97",
+		w_code: "wel_78Gddfg",
+		options: {
+			hasQ: false,
+			changeCoach: false
+		}
+	})
+	await newPdvn.save()
+	const data = await Padavan.find()
+	res.send(data)
 })
 
 app.post('/', bot.webhookCallback)
