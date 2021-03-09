@@ -14,8 +14,8 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 80
 const bot = new VkBot({
-	token: '013937ce5dee436c8d9343e9bf71e2a70130dcbf893d047557b38da2c966a0785adf516e783c640ff98fe',
-	confirmation: '19477d52',
+	token: process.env.VK_TOKEN,
+	confirmation: process.env.VK_CONFIRM,
 });
 
 app.use(express.json())
@@ -29,6 +29,7 @@ bot.command('/sport', (ctx) => {
 		.oneTime())
 });
 
+// photo('./Castle.png', 'photo.png', 9128124, TOKEN, bot) //отправка фото
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
