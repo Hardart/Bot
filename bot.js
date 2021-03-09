@@ -1,21 +1,21 @@
-const { photo } = require('./functions');
+const { photo } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
-const express = require('express');
+const express = require('express')
 const mongoose = require('mongoose')
 // const RegData = require('./models/reg_data')
-const VkBot = require('node-vk-bot-api');
-const Scene = require('node-vk-bot-api/lib/scene');
-const Session = require('node-vk-bot-api/lib/session');
-const Stage = require('node-vk-bot-api/lib/stage');
-const Markup = require('node-vk-bot-api/lib/markup');
+const VkBot = require('node-vk-bot-api')
+const Scene = require('node-vk-bot-api/lib/scene')
+const Session = require('node-vk-bot-api/lib/session')
+const Stage = require('node-vk-bot-api/lib/stage')
+const Markup = require('node-vk-bot-api/lib/markup')
 require('dotenv/config')
 
-const app = express();
+const app = express()
 const PORT = process.env.PORT || 80
 const bot = new VkBot({
 	token: process.env.VK_TOKEN,
 	confirmation: process.env.VK_CONFIRM,
-});
+})
 const TOKEN = bot.settings.token
 
 app.use(express.json())
@@ -89,7 +89,7 @@ app.get('/post', (req, res) => {
 app.post('/', bot.webhookCallback)
 
 app.post('/post', (req, res) => {
-	console.log(req.body);
+	console.log(req.body)
 })
 
 async function start() {
@@ -100,7 +100,7 @@ async function start() {
 			useUnifiedTopology: true
 		})
 		app.listen(PORT, () => {
-			console.log('Server has been started');
+			console.log('Server has been started')
 		})
 	}
 	catch (e) {
