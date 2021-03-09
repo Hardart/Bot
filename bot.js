@@ -1,3 +1,4 @@
+const { test, photo } = require('./functions');
 const express = require('express');
 const mongoose = require('mongoose')
 const Padavan = require('./models/padavans')
@@ -7,16 +8,15 @@ const Scene = require('node-vk-bot-api/lib/scene');
 const Session = require('node-vk-bot-api/lib/session');
 const Stage = require('node-vk-bot-api/lib/stage');
 const Markup = require('node-vk-bot-api/lib/markup');
-const api = require('node-vk-bot-api/lib/api');
-const fetch = require('node-fetch');
-const FormData = require('form-data');
-const fs = require('fs');
+
+
 const app = express();
 const PORT = process.env.PORT || 80
 const bot = new VkBot({
 	token: '013937ce5dee436c8d9343e9bf71e2a70130dcbf893d047557b38da2c966a0785adf516e783c640ff98fe',
 	confirmation: '19477d52',
 });
+const TOKEN = bot.settings.token
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -28,7 +28,9 @@ bot.command('/sport', (ctx) => {
 			[Markup.button('Bad', 'negative')]
 		])
 		.oneTime())
-});
+})
+
+// photo('./Castle.png', 'photo.png', 9128124, TOKEN, bot) - отправка фото
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
@@ -91,7 +93,6 @@ app.post('/post', (req, res) => {
 	console.log(req.body);
 })
 
-
 async function start() {
 	try {
 		await mongoose.connect('mongodb+srv://hardart:134679qaZ@cluster0.6wswz.mongodb.net/mongo', {
@@ -107,4 +108,5 @@ async function start() {
 		console.log(e)
 	}
 }
+
 start()
