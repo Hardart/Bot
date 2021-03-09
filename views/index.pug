@@ -1,0 +1,14 @@
+doctype html
+html(lang="en")
+	head
+		meta(charset="UTF-8")
+		link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.6.10/css/uikit.min.css")
+		title Main
+	body 
+		div.uk-container
+			h1 #{title}
+			ol
+				each vl in users
+					li #{vl.ren_login} - #{vl.ren_pass}
+			p The pipe always goes at the beginning of its own line, not counting indentation.
+			div.uk-button.uk-button-primary btn

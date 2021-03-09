@@ -10,6 +10,7 @@ const Session = require('node-vk-bot-api/lib/session')
 const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
+const pugRoute = require('./routes/pug')
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
@@ -19,9 +20,14 @@ const bot = new VkBot({
 	confirmation: process.env.VK_CONFIRM,
 })
 
+app.set('views', './views')
+app.set('view engine', 'pug')
+
 app.use('/post', usersRoute)
+app.use('/pug', pugRoute)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
 
 bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null, Markup
