@@ -1,7 +1,7 @@
-const { test, photo } = require('./functions');
+const { photo } = require('./functions');
+const { Padavan, RegData } = require('./models/padavans')
 const express = require('express');
 const mongoose = require('mongoose')
-const { Padavan, RegData } = require('./models/padavans')
 // const RegData = require('./models/reg_data')
 const VkBot = require('node-vk-bot-api');
 const Scene = require('node-vk-bot-api/lib/scene');
@@ -31,7 +31,7 @@ bot.command('/sport', (ctx) => {
 		.oneTime())
 })
 
-// photo('./Castle.png', 'photo.png', userID, TOKEN, bot) //отправка фото
+// photo('Castle.png', process.env.VK_ID, TOKEN, bot) //отправка фото
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload

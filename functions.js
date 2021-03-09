@@ -5,13 +5,13 @@ const api = require('node-vk-bot-api/lib/api');
 
 
 module.exports = {
-	photo: async function (path, filename, userID, token, bot) {
+	photo: async function (filename, userID, token, bot) {
 		const url = await api('photos.getMessagesUploadServer', {
 			peer_id: userID,
 			access_token: token
 		}).then(url => url.response.upload_url)
 
-		let img = fs.readFileSync(path)
+		let img = fs.readFileSync("./img/" + filename)
 		const form = new FormData()
 		form.append('photo', img, {
 			contentType: 'img/png',
@@ -33,7 +33,6 @@ module.exports = {
 			bot.sendMessage(userID, "", attach)
 		})
 	},
-
 	test: () => {
 		console.log("hello");
 	}
