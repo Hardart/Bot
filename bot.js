@@ -45,8 +45,7 @@ bot.on(async (ctx) => {
 	const pdvn = await Padavan.find({ "vk_id": userID }).then(data => data)
 	if (pdvn[0]) {
 		if (payload) {
-			let btn = JSON.parse(payload)
-			console.log(btn)
+			const btn = JSON.parse(payload)
 			switch (btn.button) {
 				case 'Bad':
 					ctx.reply('Btn clicked')
