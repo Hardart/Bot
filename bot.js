@@ -10,7 +10,6 @@ const Stage = require('node-vk-bot-api/lib/stage');
 const Markup = require('node-vk-bot-api/lib/markup');
 require('dotenv/config')
 
-
 const app = express();
 const PORT = process.env.PORT || 80
 const bot = new VkBot({
@@ -31,7 +30,7 @@ bot.command('/sport', (ctx) => {
 		.oneTime())
 })
 
-// photo('Castle.png', process.env.VK_ID, TOKEN, bot) //отправка фото
+// photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
