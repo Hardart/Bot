@@ -19,6 +19,7 @@ const bot = new VkBot({
 });
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null, Markup
@@ -28,7 +29,6 @@ bot.command('/sport', (ctx) => {
 		])
 		.oneTime())
 });
-
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
@@ -81,8 +81,17 @@ bot.on(async (ctx) => {
 	}
 })
 
+app.get('/post', (req, res) => {
+	res.send("<h1>Post page</h1>")
+})
 
 app.post('/', bot.webhookCallback)
+
+app.post('/post', (req, res) => {
+	console.log(req.body);
+})
+
+
 async function start() {
 	try {
 		await mongoose.connect('mongodb+srv://hardart:134679qaZ@cluster0.6wswz.mongodb.net/mongo', {
