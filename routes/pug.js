@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const { RegData } = require('../models/padavans')
+const { Padavan } = require('../models/padavans')
 router.get('/', async (req, res) => {
-	const allData = await RegData.find()
+	const allPadavans = await Padavan.find()
 	res.render('index', {
 		title: 'Шаблонизатор PUG',
-		users: allData
+		users: allPadavans
 	})
 })
 module.exports = router
