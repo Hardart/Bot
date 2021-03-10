@@ -13,7 +13,7 @@ const pugRoute = require('./routes/pug')
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
-const PORT = process.env.PORT || 80
+const PORT = process.env.PORT || 8089
 const bot = new VkBot({
 	token: TOKEN,
 	confirmation: process.env.VK_CONFIRM,
