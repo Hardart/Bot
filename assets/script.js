@@ -21,7 +21,11 @@ btn.onclick = () => {
 		name: "hard"
 	}
 	sendRequest('post', endpoint, body)
-		.then(res => console.log(res[0].full_name))
+		.then(res => {
+			for (let i in res) {
+				console.log(res[i])
+			}
+		})
 		.catch(err => console.log(err))
 
 }
