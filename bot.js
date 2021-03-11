@@ -3,6 +3,7 @@ const { photo } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
+const path = require('path')
 const VkBot = require('node-vk-bot-api')
 const Scene = require('node-vk-bot-api/lib/scene')
 const Session = require('node-vk-bot-api/lib/session')
@@ -22,6 +23,7 @@ const bot = new VkBot({
 app.set('views', './views')
 app.set('view engine', 'pug')
 
+app.use(express.static(path.join(__dirname, 'assets')))
 app.use('/post', usersRoute)
 app.use('/pug', pugRoute)
 
