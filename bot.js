@@ -3,6 +3,7 @@ const { photo } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
+const path = require('path')
 const VkBot = require('node-vk-bot-api')
 const Scene = require('node-vk-bot-api/lib/scene')
 const Session = require('node-vk-bot-api/lib/session')
@@ -13,7 +14,7 @@ const pugRoute = require('./routes/pug')
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
-const PORT = process.env.PORT || 80
+const PORT = process.env.PORT || 8089
 const bot = new VkBot({
 	token: TOKEN,
 	confirmation: process.env.VK_CONFIRM,
@@ -22,11 +23,15 @@ const bot = new VkBot({
 app.set('views', './views')
 app.set('view engine', 'pug')
 
+app.use(express.static(path.join(__dirname, 'assets')))
 app.use('/post', usersRoute)
 app.use('/pug', pugRoute)
+<<<<<<< HEAD
 // app.use(express.json())
 // app.use(express.urlencoded({ extended: true }))
 
+=======
+>>>>>>> 10dd844357b640fa20445e671111365a3f558754
 
 bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null, Markup
