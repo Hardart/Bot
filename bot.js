@@ -1,7 +1,6 @@
 require('dotenv/config')
 const { photo } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
-const formidableMiddleware = require('express-formidable');
 const express = require('express')
 const mongoose = require('mongoose')
 const VkBot = require('node-vk-bot-api')
@@ -25,8 +24,8 @@ app.set('view engine', 'pug')
 
 app.use('/post', usersRoute)
 app.use('/pug', pugRoute)
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
 
 
 bot.command('/sport', (ctx) => {
