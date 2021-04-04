@@ -21,23 +21,8 @@ const bot = new VkBot({
 	confirmation: process.env.VK_CONFIRM,
 })
 
-<<<<<<< HEAD
 // app.set('views', './views')
 // app.set('view engine', 'pug')
-=======
-app.set('views', './views')
-app.set('view engine', 'pug')
-
-app.use(express.static(path.join(__dirname, 'assets')))
-app.use('/post', usersRoute)
-app.use('/pug', pugRoute)
-<<<<<<< HEAD
-// app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
-
-=======
->>>>>>> 10dd844357b640fa20445e671111365a3f558754
->>>>>>> a2b56fa887e0a9fe32b2d701955c5a191f53175c
 
 // app.use(express.static(path.join(__dirname, 'assets')))
 // app.use('/post', usersRoute)
