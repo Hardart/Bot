@@ -5,6 +5,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const path = require('path')
 const VkBot = require('node-vk-bot-api')
+const api = require('node-vk-bot-api/lib/api')
 const Scene = require('node-vk-bot-api/lib/scene')
 const Session = require('node-vk-bot-api/lib/session')
 const Stage = require('node-vk-bot-api/lib/stage')
@@ -14,29 +15,83 @@ const pugRoute = require('./routes/pug')
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
-const PORT = process.env.PORT || 8089
+const PORT = process.env.PORT || 80
 const bot = new VkBot({
 	token: TOKEN,
 	confirmation: process.env.VK_CONFIRM,
 })
 
-app.set('views', './views')
-app.set('view engine', 'pug')
+// app.set('views', './views')
+// app.set('view engine', 'pug')
 
-app.use(express.static(path.join(__dirname, 'assets')))
-app.use('/post', usersRoute)
-app.use('/pug', pugRoute)
-
+// app.use(express.static(path.join(__dirname, 'assets')))
+// app.use('/post', usersRoute)
+// app.use('/pug', pugRoute)
+app.use(express.json())
 bot.command('/sport', (ctx) => {
-	ctx.reply('Select your sport', null, Markup
-		.keyboard([
-			[Markup.button('Fine', 'positive')],
-			[Markup.button('Bad', 'negative')]
-		])
-		.oneTime())
+	ctx.reply('Select your sport', null)
 })
+const el1 = {
+	title: "Название",
+	description: "Описание",
+	action: {
+		type: "open_link",
+		link: "https://vk.com"
+	},
+	buttons: [{
+		action: {
+			type: "vkpay",
+			hash: "action=pay-to-group&amount=1&group_id=202655096"
+		}
+	},
+	{
+		action: {
+			type: "text",
+			label: "Кнопка 2"
+		}
+	}]
 
+}
+const el2 = {
+	title: "Название",
+	description: "Описание",
+	action: {
+		type: "open_link",
+		link: "https://vk.com"
+	},
+	buttons: [{
+		action: {
+			type: "text",
+			label: "Кнопка 1"
+		}
+	},
+	{
+		action: {
+			type: "text",
+			label: "Кнопка 2"
+		}
+	}],
+
+}
 // photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
+const templ = {
+	type: "carousel",
+	elements: [
+		el1,
+		el2
+	]
+}
+
+function sendTemplate() {
+	api('messages.send', {
+		peer_id: process.env.VK_ID,
+		access_token: TOKEN,
+		template: JSON.stringify(templ),
+		message: 'Првиет',
+		random_id: 0
+	})
+}
+sendTemplate()
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
@@ -53,10 +108,10 @@ bot.on(async (ctx) => {
 			const btn = JSON.parse(payload)
 			switch (btn.button) {
 				case 'Bad':
-					ctx.reply('Btn clicked')
+					ctx.reply('Bad clicked')
 					break
 				case 'Fine':
-					ctx.reply('Btn clicked')
+					ctx.reply('Fine clicked')
 					break
 			}
 		} else {
