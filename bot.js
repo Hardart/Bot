@@ -1,5 +1,5 @@
 require('dotenv/config')
-const { photo } = require('./functions')
+const { photo, newKeybord } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
@@ -20,17 +20,13 @@ const bot = new VkBot({
 	token: TOKEN,
 	confirmation: process.env.VK_CONFIRM,
 })
+// photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
 
-// app.set('views', './views')
-// app.set('view engine', 'pug')
-
-// app.use(express.static(path.join(__dirname, 'assets')))
-// app.use('/post', usersRoute)
-// app.use('/pug', pugRoute)
 app.use(express.json())
 bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null)
 })
+
 const el1 = {
 	title: "Название",
 	description: "Описание",
@@ -73,7 +69,8 @@ const el2 = {
 	}],
 
 }
-// photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
+
+
 const templ = {
 	type: "carousel",
 	elements: [
@@ -91,7 +88,28 @@ function sendTemplate() {
 		random_id: 0
 	})
 }
-sendTemplate()
+// sendTemplate()
+
+let users = [
+	Markup.button('1', 'primary'),
+	Markup.button('2', 'primary'),
+	Markup.button('3', 'primary'),
+	Markup.button('4', 'primary'),
+	Markup.button('5', 'primary'),
+	Markup.button('6', 'primary'),
+	Markup.button('7', 'primary'),
+	Markup.button('8', 'primary'),
+	Markup.button('9', 'primary'),
+	Markup.button('10', 'primary'),
+	Markup.button('11', 'primary'),
+	Markup.button('12', 'primary'),
+	Markup.button('13', 'primary'),
+	Markup.button('14', 'primary'),
+	Markup.button('15', 'primary'),
+	Markup.button('16', 'primary'),
+	Markup.button('17', 'primary'),
+	Markup.button('18', 'primary')
+]
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
@@ -113,13 +131,13 @@ bot.on(async (ctx) => {
 				case 'Fine':
 					ctx.reply('Fine clicked')
 					break
+				default:
+					ctx.reply(`You clicked button - ${btn.button}`)
 			}
 		} else {
-			ctx.reply('Выбери тренера', null, Markup
-				.keyboard([
-					[Markup.button('Fine', 'primary')],
-					[Markup.button('Bad', 'negative')]
-				])
+			ctx.reply('Кого удалить?', null, Markup.keyboard(
+				newKeybord(users, 4)
+			)
 			)
 		}
 	} else {
@@ -137,6 +155,7 @@ bot.on(async (ctx) => {
 				}
 			})
 			await newPdvn.save()
+			ctx.reply("Add to collection MongoDB")
 		} else {
 			ctx.reply(user.first_name)
 		}

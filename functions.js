@@ -35,5 +35,20 @@ module.exports = {
 	},
 	test: () => {
 		console.log("hello");
+	},
+	newKeybord: function keyboard(users, columns = 2) {
+		buttons = []
+		for (let i = 0; i < 10; i++) {
+			arrayOfButtons = []
+			for (let j = i * columns; j < (i + 1) * columns; j++) {
+				if (users[j]) {
+					arrayOfButtons.push(users[j])
+				}
+			}
+			if (arrayOfButtons[0]) {
+				buttons.push(arrayOfButtons)
+			}
+		}
+		return buttons
 	}
 }
