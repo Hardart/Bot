@@ -1,7 +1,7 @@
-const fetch = require('node-fetch');
-const FormData = require('form-data');
-const fs = require('fs');
-const api = require('node-vk-bot-api/lib/api');
+const fetch = require('node-fetch')
+const FormData = require('form-data')
+const fs = require('fs')
+const api = require('node-vk-bot-api/lib/api')
 
 
 module.exports = {
@@ -50,5 +50,11 @@ module.exports = {
 			}
 		}
 		return buttons
+	},
+	sendRequest: async function (method, url, body = null) {
+		return fetch(url, {
+			method: method,
+			body: body
+		}).then(obj => obj.json())
 	}
 }
