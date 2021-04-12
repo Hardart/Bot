@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const Pdvn = mongoose.Schema({
-	vk_id: Number,
+	vk_id: String,
 	full_name: String,
 	ren_login: String,
 	ren_pass: String,
