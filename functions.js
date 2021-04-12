@@ -51,10 +51,10 @@ module.exports = {
 		}
 		return buttons
 	},
-	sendRequest: async function (method, url, body = null) {
+	sendRequest: function (method, url, body = null) {
 		return fetch(url, {
 			method: method,
-			body: body
+			body: body ? JSON.stringify(body) : null
 		}).then(obj => obj.json())
 	}
 }

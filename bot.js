@@ -1,5 +1,5 @@
 require('dotenv/config')
-const { photo, newKeybord } = require('./functions')
+const { photo, newKeybord, sendRequest } = require('./functions')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
@@ -33,6 +33,14 @@ bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null)
 })
 
+//---------------------- Carousel test -----------------------------------
+let sum = 15
+let account = '7852354'
+let desc = 'Testing payments'
+let secretKey = '5db9a6efe5ec80c202bf3aa399c1be05'
+let signature = sha256(account + '{up}' + desc + '{up}' + sum + '{up}' + secretKey)
+let url = `https://unitpay.money/pay/308451-bd64b?sum=${sum}&account=${account}&desc=${desc}`
+
 const el1 = {
 	title: "Элемент 1",
 	description: "Описание",
@@ -53,13 +61,6 @@ const el1 = {
 		}
 	}]
 }
-
-let sum = 15
-let account = '7852354'
-let desc = 'Testing payments'
-let secretKey = '5db9a6efe5ec80c202bf3aa399c1be05'
-let signature = sha256(account + '{up}' + desc + '{up}' + sum + '{up}' + secretKey)
-let url = `https://unitpay.money/pay/308451-bd64b?sum=${sum}&account=${account}&desc=${desc}`
 
 const el2 = {
 	title: "Элемент 2",
@@ -102,7 +103,9 @@ function sendTemplate() {
 		random_id: 0
 	})
 }
-sendTemplate()
+// sendTemplate()
+// -----------------------------------------------------------------------------------------
+
 
 let users = [
 	Markup.button('1', 'primary'),
@@ -221,7 +224,7 @@ async function start() {
 			useUnifiedTopology: true
 		})
 		app.listen(PORT, () => {
-			console.log('Server has been started')
+			console.log('Сервер запустился')
 		})
 	}
 	catch (e) {
