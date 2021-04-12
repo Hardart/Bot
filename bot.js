@@ -12,6 +12,7 @@ const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
+const { sha256 } = require('js-sha256')
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
@@ -22,13 +23,18 @@ const bot = new VkBot({
 })
 // photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
 
+app.set('views', './views')
+app.set('view engine', 'pug')
+app.use('/post', usersRoute)
+app.use('/pug', pugRoute)
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null)
 })
 
 const el1 = {
-	title: "Название",
+	title: "Элемент 1",
 	description: "Описание",
 	action: {
 		type: "open_link",
@@ -46,30 +52,38 @@ const el1 = {
 			label: "Кнопка 2"
 		}
 	}]
-
 }
+
+let sum = 15
+let account = '7852354'
+let desc = 'Testing payments'
+let secretKey = '5db9a6efe5ec80c202bf3aa399c1be05'
+let signature = sha256(account + '{up}' + desc + '{up}' + sum + '{up}' + secretKey)
+let url = `https://unitpay.money/pay/308451-bd64b?sum=${sum}&account=${account}&desc=${desc}`
+
 const el2 = {
-	title: "Название",
+	title: "Элемент 2",
 	description: "Описание",
 	action: {
 		type: "open_link",
-		link: "https://vk.com"
+		link: url
 	},
 	buttons: [{
 		action: {
-			type: "text",
-			label: "Кнопка 1"
+			type: "open_link",
+			link: url,
+			label: "Оплатить"
 		}
 	},
 	{
 		action: {
-			type: "text",
-			label: "Кнопка 2"
+			type: "callback",
+			label: "Callback",
+			payload: { payload: "func" }
 		}
 	}],
 
 }
-
 
 const templ = {
 	type: "carousel",
@@ -88,7 +102,7 @@ function sendTemplate() {
 		random_id: 0
 	})
 }
-// sendTemplate()
+sendTemplate()
 
 let users = [
 	Markup.button('1', 'primary'),
@@ -111,6 +125,30 @@ let users = [
 	Markup.button('18', 'primary')
 ]
 
+bot.event('message_event', (ctx) => {
+	// ctx.reply('Your message was editted');
+	// let eventData = {
+	// 	"type": "show_snackbar",
+	// 	"text": "Покажи исчезающее сообщение на экране"
+	// }
+	// let eventID = ctx.message.event_id
+	// let user = ctx.message.user_id
+	// api('messages.sendMessageEventAnswer', {
+	// 	event_id: eventID,
+	// 	user_id: user,
+	// 	peer_id: user,
+	// 	event_data: JSON.stringify(eventData),
+	// 	access_token: TOKEN
+	// })
+	ctx.reply('Select your sport', null, Markup
+		.keyboard([
+			'Football',
+			'Basketball',
+		])
+		.oneTime(),
+	)
+});
+
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
 	const userMsg = ctx.message.text
@@ -120,6 +158,7 @@ bot.on(async (ctx) => {
 		access_token: TOKEN
 	}).then(data => data.response[0])
 
+	let idToString = userID.toString()
 	const pdvn = await Padavan.find({ "vk_id": userID }).then(data => data)
 	if (pdvn[0]) {
 		if (payload) {
@@ -131,12 +170,21 @@ bot.on(async (ctx) => {
 				case 'Fine':
 					ctx.reply('Fine clicked')
 					break
+				case 'func':
+					let sum = 15
+					let account = '7852354'
+					let desc = 'Testing payments'
+					let secretKey = '5db9a6efe5ec80c202bf3aa399c1be05'
+					let signature = sha256(account + '{up}' + desc + '{up}' + sum + '{up}' + secretKey)
+					let url = `https://unitpay.money/pay/308451-bd64b?sum=${sum}&account=${account}&desc=${desc}`
+					ctx.reply('Func clicked')
+					break
 				default:
 					ctx.reply(`You clicked button - ${btn.button}`)
 			}
 		} else {
 			ctx.reply('Кого удалить?', null, Markup.keyboard(
-				newKeybord(users, 4)
+				newKeybord(users, 5)
 			)
 			)
 		}
