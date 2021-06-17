@@ -1,5 +1,4 @@
 const express = require('express')
-const { sha256 } = require('js-sha256')
 const router = express.Router()
 const fetch = require('node-fetch')
 const { Padavan, RegData } = require('../models/padavans')
@@ -13,7 +12,7 @@ router.get('/', async (req, res) => {
 	}
 
 	// sendRequest('GET', url).then(data => console.log(data))
-	res.redirect(url)
+	// res.redirect(url)
 })
 
 router.post('/', async (req, res) => {

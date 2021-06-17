@@ -12,7 +12,6 @@ const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
-const { sha256 } = require('js-sha256')
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
@@ -32,72 +31,6 @@ app.use(express.urlencoded({ extended: true }))
 bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null)
 })
-
-
-const el1 = {
-	title: "Элемент 1",
-	description: "Описание",
-	action: {
-		type: "open_link",
-		link: "https://vk.com"
-	},
-	buttons: [{
-		action: {
-			type: "vkpay",
-			hash: "action=pay-to-group&amount=1&group_id=202655096"
-		}
-	},
-	{
-		action: {
-			type: "text",
-			label: "Кнопка 2"
-		}
-	}]
-}
-
-const el2 = {
-	title: "Элемент 2",
-	description: "Описание",
-	action: {
-		type: "open_link",
-		link: url
-	},
-	buttons: [{
-		action: {
-			type: "open_link",
-			link: url,
-			label: "Оплатить"
-		}
-	},
-	{
-		action: {
-			type: "callback",
-			label: "Callback",
-			payload: { payload: "func" }
-		}
-	}],
-
-}
-
-const templ = {
-	type: "carousel",
-	elements: [
-		el1,
-		el2
-	]
-}
-
-function sendTemplate() {
-	api('messages.send', {
-		peer_id: process.env.VK_ID,
-		access_token: TOKEN,
-		template: JSON.stringify(templ),
-		message: 'Првиет',
-		random_id: 0
-	})
-}
-// sendTemplate()
-// -----------------------------------------------------------------------------------------
 
 
 let users = [
@@ -207,7 +140,6 @@ bot.on(async (ctx) => {
 })
 
 app.post('/', bot.webhookCallback)
-
 
 async function start() {
 	try {
