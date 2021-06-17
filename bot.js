@@ -33,6 +33,46 @@ bot.command('/sport', (ctx) => {
 })
 
 
+const btnYes = Markup.button('Да', 'positive', {
+						foo: 'yes',
+					})
+const btnNo = Markup.button('Нет', 'negative', {
+						foo: 'no',
+					})
+const kbd = Markup
+					.keyboard([btnYes, btnNo])
+					.oneTime()
+
+const scene = new Scene('addCoach',
+  (ctx) => {
+    ctx.scene.next();
+    ctx.reply('Напиши полное фамилию и имя нового тренера');
+  },
+  (ctx) => {
+    ctx.session.name = ctx.message.text;
+
+    ctx.scene.next();
+    ctx.reply('Теперь введи ВК-ID тренера');
+  },
+  (ctx) => {
+    ctx.session.id = ctx.message.text;
+	const url = "http://robb-i.ru/php_bot/post.php"
+    ctx.scene.leave();
+    ctx.reply(`${ctx.session.name}, id ${ctx.session.id}\nбудет добавлена в список тренеров?`, null, kbd);
+	 const data = {
+		 name: ctx.session.name,
+		 id: ctx.session.id
+	 }
+	 sendRequest('POST', url, data).then(data => console.log(data))
+  }
+)
+
+const session = new Session();
+const stage = new Stage(scene);
+
+bot.use(session.middleware());
+bot.use(stage.middleware());
+
 let users = [
 	Markup.button('1', 'primary'),
 	Markup.button('2', 'primary'),
@@ -78,6 +118,10 @@ bot.event('message_event', (ctx) => {
 	)
 });
 
+bot.command('/meet', (ctx) => {
+	
+ });
+
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
 	const userMsg = ctx.message.text
@@ -99,22 +143,16 @@ bot.on(async (ctx) => {
 				case 'Fine':
 					ctx.reply('Fine clicked')
 					break
-				case 'func':
-					let sum = 15
-					let account = '7852354'
-					let desc = 'Testing payments'
-					let secretKey = '5db9a6efe5ec80c202bf3aa399c1be05'
-					let signature = sha256(account + '{up}' + desc + '{up}' + sum + '{up}' + secretKey)
-					let url = `https://unitpay.money/pay/308451-bd64b?sum=${sum}&account=${account}&desc=${desc}`
-					ctx.reply('Func clicked')
+				case '9':
+					ctx.scene.enter('addCoach')
 					break
 				default:
 					ctx.reply(`You clicked button - ${btn.button}`)
 			}
 		} else {
-			ctx.reply('Кого удалить?', null, Markup.keyboard(
-				newKeybord(users, 5)
-			)
+			ctx.reply('Кого удалить?', null, Markup
+				.keyboard(newKeybord(users, 5))
+				.oneTime()
 			)
 		}
 	} else {
