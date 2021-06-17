@@ -33,13 +33,6 @@ bot.command('/sport', (ctx) => {
 	ctx.reply('Select your sport', null)
 })
 
-//---------------------- Carousel test -----------------------------------
-let sum = 15
-let account = '7852354'
-let desc = 'Testing payments'
-let secretKey = '5db9a6efe5ec80c202bf3aa399c1be05'
-let signature = sha256(account + '{up}' + desc + '{up}' + sum + '{up}' + secretKey)
-let url = `https://unitpay.money/pay/308451-bd64b?sum=${sum}&account=${account}&desc=${desc}`
 
 const el1 = {
 	title: "Элемент 1",
