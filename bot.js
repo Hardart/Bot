@@ -131,7 +131,6 @@ bot.on(async (ctx) => {
 		access_token: TOKEN
 	}).then(data => data.response[0])
 
-	let idToString = userID.toString()
 	const pdvn = await Padavan.find({ "vk_id": userID }).then(data => data)
 	if (pdvn[0]) {
 		if (payload) {
