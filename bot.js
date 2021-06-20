@@ -28,16 +28,17 @@ app.use('/post', usersRoute)
 app.use('/pug', pugRoute)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-bot.command('/sport', (ctx) => {
+
+bot.command('/config', (ctx) => {
 	ctx.reply('Select your sport', null)
 })
 
 
 const btnYes = Markup.button('Да', 'positive', {
-						foo: 'yes',
+						add_coach: 'yes',
 					})
 const btnNo = Markup.button('Нет', 'negative', {
-						foo: 'no',
+						add_coach: 'no',
 					})
 const kbd = Markup
 					.keyboard([btnYes, btnNo])
@@ -55,15 +56,28 @@ const scene = new Scene('addCoach',
     ctx.reply('Теперь введи ВК-ID тренера');
   },
   (ctx) => {
-    ctx.session.id = ctx.message.text;
-	const url = "http://robb-i.ru/php_bot/post.php"
-    ctx.scene.leave();
+   ctx.session.id = ctx.message.text;
+	
+    ctx.scene.next();
     ctx.reply(`${ctx.session.name}, id ${ctx.session.id}\nбудет добавлена в список тренеров?`, null, kbd);
-	 const data = {
-		 name: ctx.session.name,
-		 id: ctx.session.id
-	 }
-	 sendRequest('POST', url, data).then(data => console.log(data))
+	 
+  },
+  (ctx) => {
+	  ctx.scene.leave()
+	  const payload = JSON.parse(ctx.message.payload)
+	  const url = "http://robb-i.ru/php_bot/post.php"
+	  const body = {
+		value: "add_coach",
+		coach_name: ctx.session.name,
+		coach_id: ctx.session.id
+	 } 
+	if (payload.add_coach == "yes") {
+		sendRequest('POST', url, body).then(data => {
+			ctx.reply(data)
+		})
+	} else {
+		ctx.reply("Вы вернулись в главное меню")
+	}
   }
 )
 
