@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 const FormData = require('form-data')
 const fs = require('fs')
 const api = require('node-vk-bot-api/lib/api')
+const Markup = require('node-vk-bot-api/lib/markup')
 
 
 module.exports = {
@@ -36,13 +37,13 @@ module.exports = {
 	test: () => {
 		console.log("hello");
 	},
-	newKeybord: function keyboard(users, columns = 2) {
+	newKeybord: function keyboard(users, columns = 2, body = "button") {
 		buttons = []
 		for (let i = 0; i < 10; i++) {
 			arrayOfButtons = []
 			for (let j = i * columns; j < (i + 1) * columns; j++) {
 				if (users[j]) {
-					arrayOfButtons.push(users[j])
+					arrayOfButtons.push(Markup.button(users[j], 'primary', j+1))
 				}
 			}
 			if (arrayOfButtons[0]) {

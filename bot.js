@@ -1,5 +1,6 @@
 require('dotenv/config')
 const { photo, newKeybord, sendRequest } = require('./functions')
+const kbd = require('./keyboards')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
@@ -12,6 +13,7 @@ const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
+const url = "http://robb-i.ru/php_bot/post.php"
 const TOKEN = process.env.VK_TOKEN
 
 const app = express()
@@ -29,20 +31,6 @@ app.use('/pug', pugRoute)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-bot.command('/config', (ctx) => {
-	ctx.reply('Select your sport', null)
-})
-
-
-const btnYes = Markup.button('Да', 'positive', {
-						add_coach: 'yes',
-					})
-const btnNo = Markup.button('Нет', 'negative', {
-						add_coach: 'no',
-					})
-const kbd = Markup
-					.keyboard([btnYes, btnNo])
-					.oneTime()
 
 const scene = new Scene('addCoach',
   (ctx) => {
@@ -56,16 +44,13 @@ const scene = new Scene('addCoach',
     ctx.reply('Теперь введи ВК-ID тренера');
   },
   (ctx) => {
-   ctx.session.id = ctx.message.text;
-	
-    ctx.scene.next();
-    ctx.reply(`${ctx.session.name}, id ${ctx.session.id}\nбудет добавлена в список тренеров?`, null, kbd);
-	 
+		ctx.session.id = ctx.message.text;
+		ctx.scene.next();
+		ctx.reply(`Имя - ${ctx.session.name},\nVK_id - ${ctx.session.id},\nдобавить в список тренеров?`, null, kbd.confirmBtns());
   },
   (ctx) => {
 	  ctx.scene.leave()
 	  const payload = JSON.parse(ctx.message.payload)
-	  const url = "http://robb-i.ru/php_bot/post.php"
 	  const body = {
 		value: "add_coach",
 		coach_name: ctx.session.name,
@@ -76,13 +61,90 @@ const scene = new Scene('addCoach',
 			ctx.reply(data)
 		})
 	} else {
-		ctx.reply("Вы вернулись в главное меню")
+		ctx.reply("Вы вернулись в главное меню", null, kbd.mainMenu())
 	}
   }
 )
 
+const changeScene = new Scene('changeCoach',
+  (ctx) => {
+    	ctx.scene.next();
+    	sendRequest('POST', url, {value: "show_all_coaches"}).then(data => {
+			let body = {
+				value: "coach"
+			}
+			ctx.reply('Кого необходимо изменить?', null, Markup
+				.keyboard(newKeybord(data, 2, body))
+				.oneTime()
+			)
+		})
+	},
+  (ctx) => {
+		const payload = JSON.parse(ctx.message.payload)
+		ctx.session.payload = payload
+		ctx.session.oldName = ctx.message.text
+    	ctx.scene.next();
+    	ctx.reply('Напиши полное фамилию и имя нового тренера');
+	},
+  (ctx) => {
+		ctx.session.name = ctx.message.text;
+    	ctx.scene.next();
+    	ctx.reply('Теперь введи ВК-ID тренера');
+	},
+	(ctx) => {
+		ctx.scene.leave()
+		
+		let body = {
+			value: "update_coaches",
+			coach_vk_id: +ctx.message.text,
+			coach_name: ctx.session.name,
+			coach_id: ctx.session.payload
+		}
+		
+		sendRequest('POST', url, body).then(data => {
+			ctx.reply(data)
+		})
+  }
+)
+
+const deleteScene = new Scene('deleteCoach',
+  (ctx) => {
+    	ctx.scene.next();
+    	sendRequest('POST', url, {value: "show_all_coaches"}).then(data => {
+			ctx.reply('Кого необходимо удалить?', null, Markup
+				.keyboard(newKeybord(data, 2))
+				.oneTime()
+			)
+		})
+	},
+  (ctx) => {
+		const payload = JSON.parse(ctx.message.payload)
+		ctx.session.id = payload
+		ctx.session.name = ctx.message.text;
+		console.log(payload);
+    	ctx.scene.next();
+		ctx.reply(`Тренер с именем ${ctx.session.name} будет удалён\nВы увенерены?`, null, kbd.confirmBtns())
+  },
+  (ctx) => {
+		const payload = JSON.parse(ctx.message.payload)
+    	ctx.scene.leave();
+		let body = {
+			value: "delete_coach",
+			coach_id: ctx.session.id,
+			coach_name: ctx.session.name
+		}
+		if (payload.add_coach == "yes") {
+			sendRequest('POST', url, body).then(data => {
+				ctx.reply(data)
+			})
+		} else {
+			ctx.reply("Вы вернулись в главное меню", null, kbd.mainMenu())
+		}
+  }
+)
+
 const session = new Session();
-const stage = new Stage(scene);
+const stage = new Stage(scene, changeScene, deleteScene);
 
 bot.use(session.middleware());
 bot.use(stage.middleware());
@@ -108,33 +170,10 @@ let users = [
 	Markup.button('18', 'primary')
 ]
 
-bot.event('message_event', (ctx) => {
-	// ctx.reply('Your message was editted');
-	// let eventData = {
-	// 	"type": "show_snackbar",
-	// 	"text": "Покажи исчезающее сообщение на экране"
-	// }
-	// let eventID = ctx.message.event_id
-	// let user = ctx.message.user_id
-	// api('messages.sendMessageEventAnswer', {
-	// 	event_id: eventID,
-	// 	user_id: user,
-	// 	peer_id: user,
-	// 	event_data: JSON.stringify(eventData),
-	// 	access_token: TOKEN
-	// })
-	ctx.reply('Select your sport', null, Markup
-		.keyboard([
-			'Football',
-			'Basketball',
-		])
-		.oneTime(),
-	)
-});
+bot.command('/config', (ctx) => {
+	ctx.reply('Основные настройки', null, kbd.mainMenu())
+})
 
-bot.command('/meet', (ctx) => {
-	
- });
 
 bot.on(async (ctx) => {
 	const payload = ctx.message.payload
@@ -145,48 +184,32 @@ bot.on(async (ctx) => {
 		access_token: TOKEN
 	}).then(data => data.response[0])
 
-	const pdvn = await Padavan.find({ "vk_id": userID }).then(data => data)
-	if (pdvn[0]) {
-		if (payload) {
-			const btn = JSON.parse(payload)
-			switch (btn.button) {
-				case 'Bad':
-					ctx.reply('Bad clicked')
-					break
-				case 'Fine':
-					ctx.reply('Fine clicked')
-					break
-				case '9':
-					ctx.scene.enter('addCoach')
-					break
-				default:
-					ctx.reply(`You clicked button - ${btn.button}`)
-			}
-		} else {
-			ctx.reply('Кого удалить?', null, Markup
-				.keyboard(newKeybord(users, 5))
-				.oneTime()
-			)
+	if (payload) {
+		const btn = JSON.parse(payload)
+		switch (btn.value) {
+			case 'delete_coach':
+				ctx.scene.enter('deleteCoach')
+				break
+			case 'change_coach':
+				ctx.scene.enter('changeCoach')
+				break
+			case 'add_coach':
+				ctx.scene.enter('addCoach')
+				break
+			case 'coach_config':
+				ctx.reply('Выбери действие', null, kbd.menuCoach())
+				break
+			case 'coach':
+				ctx.reply('yep')
+				break
+			default:
+				ctx.reply(`You clicked button - ${btn.button}`)
 		}
 	} else {
-		const string = await RegData.find({ "w_code": userMsg }).then(data => (data[0]))
-		if (string) {
-			const newPdvn = new Padavan({
-				vk_id: userID,
-				full_name: user.last_name + " " + user.first_name,
-				ren_login: string.ren_login,
-				ren_pass: string.ren_pass,
-				w_code: string.w_code,
-				options: {
-					hasQ: false,
-					changeCoach: false
-				}
-			})
-			await newPdvn.save()
-			ctx.reply("Add to collection MongoDB")
-		} else {
-			ctx.reply(user.first_name)
-		}
+		ctx.reply('Кого удалить?', null, Markup
+			.keyboard(newKeybord(users, 5))
+			.oneTime()
+		)
 	}
 })
 
