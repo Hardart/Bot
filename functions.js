@@ -4,58 +4,54 @@ const fs = require('fs')
 const api = require('node-vk-bot-api/lib/api')
 const Markup = require('node-vk-bot-api/lib/markup')
 
-
 module.exports = {
-	photo: async function (filename, userID, token, bot, mess = "") {
-		const url = await api('photos.getMessagesUploadServer', {
-			peer_id: userID,
-			access_token: token
-		}).then(url => url.response.upload_url)
+  photo: async function (filename, userID, token, bot, mess = '') {
+    const url = await api('photos.getMessagesUploadServer', {
+      peer_id: userID,
+      access_token: token,
+    }).then((url) => url.response.upload_url)
 
-		let img = fs.readFileSync("./img/" + filename)
-		const form = new FormData()
-		form.append('photo', img, {
-			contentType: 'img/png',
-			name: 'photo',
-			filename: filename,
-		})
-		const object = await fetch(url, {
-			method: 'POST',
-			body: form
-		}).then(obj => obj.json())
-		await api('photos.saveMessagesPhoto', {
-			photo: object.photo,
-			server: object.server,
-			hash: object.hash,
-			access_token: token
-		}).then(data => {
-			const user = data.response[0]
-			const attach = 'photo' + user.owner_id + '_' + user.id
-			bot.sendMessage(userID, mess, attach)
-		})
-	},
-	test: () => {
-		console.log("hello");
-	},
-	newKeybord: function keyboard(users, columns = 2, body = "button") {
-		buttons = []
-		for (let i = 0; i < 10; i++) {
-			arrayOfButtons = []
-			for (let j = i * columns; j < (i + 1) * columns; j++) {
-				if (users[j]) {
-					arrayOfButtons.push(Markup.button(users[j], 'primary', j+1))
-				}
-			}
-			if (arrayOfButtons[0]) {
-				buttons.push(arrayOfButtons)
-			}
-		}
-		return buttons
-	},
-	sendRequest: function (method, url, body = null) {
-		return fetch(url, {
-			method: method,
-			body: body ? JSON.stringify(body) : null
-		}).then(obj => obj.json())
-	}
+    let img = fs.readFileSync('./img/' + filename)
+    const form = new FormData()
+    form.append('photo', img, {
+      contentType: 'img/png',
+      name: 'photo',
+      filename: filename,
+    })
+    const object = await fetch(url, {
+      method: 'POST',
+      body: form,
+    }).then((obj) => obj.json())
+    await api('photos.saveMessagesPhoto', {
+      photo: object.photo,
+      server: object.server,
+      hash: object.hash,
+      access_token: token,
+    }).then((data) => {
+      const user = data.response[0]
+      const attach = 'photo' + user.owner_id + '_' + user.id
+      bot.sendMessage(userID, mess, attach)
+    })
+  },
+  newKeybord: function (users, columns = 2, body = 'button') {
+    buttons = []
+    for (let i = 0; i < 10; i++) {
+      arrayOfButtons = []
+      for (let j = i * columns; j < (i + 1) * columns; j++) {
+        if (users[j]) {
+          arrayOfButtons.push(Markup.button(users[j], 'primary', j + 1))
+        }
+      }
+      if (arrayOfButtons[0]) {
+        buttons.push(arrayOfButtons)
+      }
+    }
+    return buttons
+  },
+  sendRequest: function (method, url, body = null) {
+    return fetch(url, {
+      method: method,
+      body: body ? JSON.stringify(body) : null,
+    }).then((obj) => obj.json())
+  },
 }

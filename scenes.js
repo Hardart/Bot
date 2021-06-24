@@ -1,5 +1,6 @@
 const Scene = require('node-vk-bot-api/lib/scene')
 const Markup = require('node-vk-bot-api/lib/markup')
+const { sendRequest, newKeybord } = require('./functions')
 const url = 'http://robb-i.ru/php_bot/post.php'
 
 module.exports = {
