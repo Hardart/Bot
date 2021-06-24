@@ -99,8 +99,7 @@ module.exports = {
       })
     },
     (ctx) => {
-      const payload = JSON.parse(ctx.message.payload)
-      ctx.session.payload = payload
+      ctx.session.payload = JSON.parse(ctx.message.payload)
       ctx.session.oldName = ctx.message.text
       ctx.scene.next()
       ctx.reply('Напиши полное фамилию и имя нового тренера')
