@@ -1,11 +1,9 @@
 require('dotenv/config')
-const { photo, newKeybord } = require('./functions')
 const kbd = require('./keyboards')
 const scenes = require('./scenes')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
 const mongoose = require('mongoose')
-const path = require('path')
 const VkBot = require('node-vk-bot-api')
 const api = require('node-vk-bot-api/lib/api')
 const Session = require('node-vk-bot-api/lib/session')
@@ -13,9 +11,7 @@ const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
-
 const TOKEN = process.env.VK_TOKEN
-
 const app = express()
 const PORT = process.env.PORT || 80
 const bot = new VkBot({
@@ -31,6 +27,7 @@ app.use('/pug', pugRoute)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// --------- блок сценариев -------------
 const addScene = scenes.addCoach
 const changeScene = scenes.changeCoach
 const deleteScene = scenes.deleteCoach
@@ -39,6 +36,7 @@ const stage = new Stage(addScene, changeScene, deleteScene)
 
 bot.use(session.middleware())
 bot.use(stage.middleware())
+// ----------------------------
 
 let users = [
   Markup.button('1', 'primary'),
@@ -93,7 +91,7 @@ bot.on(async (ctx) => {
         ctx.reply(`You clicked button - ${btn.button}`)
     }
   } else {
-    ctx.reply('без знаний ты не сможешь настроить мои программы')
+    ctx.reply('Без знаний ты не сможешь настроить мои программы')
   }
 })
 
