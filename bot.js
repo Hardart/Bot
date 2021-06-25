@@ -1,4 +1,5 @@
 require('dotenv/config')
+const mysql = require('mysql2')
 const kbd = require('./keyboards')
 const scenes = require('./scenes')
 const { Padavan, RegData } = require('./models/padavans')
@@ -17,6 +18,12 @@ const PORT = process.env.PORT || 80
 const bot = new VkBot({
    token: TOKEN,
    confirmation: process.env.VK_CONFIRM,
+})
+const connection = mysql.createConnection({
+   host: 'mysql.hosting.nic.ru',
+   user: 'h911249946_hard',
+   password: 'qaZ134679',
+   database: 'h911249946_test',
 })
 // photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
 
@@ -58,9 +65,37 @@ let users = [
    Markup.button('17', 'primary'),
    Markup.button('18', 'primary'),
 ]
+// connection.query(
+//    'INSERT INTO `coaches` (name, vk_id) VALUES (?, ?)',
+//    ['John', 745641],
+//    function (err, results) {
+//       // results.forEach((user) => {
+//       //    console.log(user.name)
+//       // })
+//       console.log(results)
+//    }
+// )
+// connection.query(
+//    'DELETE FROM `coaches` WHERE `id` = 23',
+//    function (err, results) {
+//       console.log(results)
+//    }
+// )
 
 bot.command('/config', (ctx) => {
-   ctx.reply('Отлично!\nВот основные настройки', null, kbd.mainMenu)
+   let users = ''
+   connection.query('SELECT * FROM `coaches`', function (err, results) {
+      results.forEach((user) => {
+         // console.log(user.name)
+         users += `${user.name}\n`
+      })
+
+      ctx.reply(
+         `Отлично!\nВот основные настройки\n${users}`,
+         null,
+         kbd.mainMenu
+      )
+   })
 })
 
 bot.on(async (ctx) => {
@@ -85,7 +120,7 @@ bot.on(async (ctx) => {
             ctx.scene.enter('addCoach')
             break
          case 'coach_config':
-            ctx.reply('Выбери действие', null, kbd.menuCoach())
+            ctx.reply('Выбери действие', null, kbd.coachMenu)
             break
          case 'stepBack':
             ctx.scene.enter('changeCoach', [1])
@@ -102,11 +137,19 @@ app.post('/', bot.webhookCallback)
 
 async function start() {
    try {
-      await mongoose.connect(process.env.DB_CONN, {
-         useFindAndModify: false,
-         useNewUrlParser: true,
-         useUnifiedTopology: true,
+      // await mongoose.connect(process.env.DB_CONN, {
+      //    useFindAndModify: false,
+      //    useNewUrlParser: true,
+      //    useUnifiedTopology: true,
+      // })
+      await connection.connect((err) => {
+         if (err) {
+            console.log(err)
+         } else {
+            console.log('БД подключена\n------------------')
+         }
       })
+
       app.listen(PORT, () => {
          console.log('Сервер запустился')
       })
