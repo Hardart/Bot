@@ -2,17 +2,15 @@ require('dotenv/config')
 const kbd = require('./keyboards')
 const db = require('./dbConnect')
 const scenes = require('./scenes')
-const { Padavan, RegData } = require('./models/padavans')
+// const { Padavan, RegData } = require('./models/padavans')
+// const mongoose = require('mongoose')
 const express = require('express')
-const mongoose = require('mongoose')
 const VkBot = require('node-vk-bot-api')
 const api = require('node-vk-bot-api/lib/api')
 const Session = require('node-vk-bot-api/lib/session')
 const Stage = require('node-vk-bot-api/lib/stage')
-const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
-const { mainMenu } = require('./keyboards')
 const TOKEN = process.env.VK_TOKEN
 const app = express()
 const PORT = process.env.PORT || 80
@@ -39,7 +37,7 @@ const stage = new Stage(addScene, changeScene, deleteScene)
 
 bot.use(session.middleware())
 bot.use(stage.middleware())
-// ----------------------------
+// --------------------------------------
 
 // connection.query(
 //    'INSERT INTO `coaches` (name, vk_id) VALUES (?, ?)',
@@ -84,7 +82,7 @@ bot.on(async (ctx) => {
             ctx.scene.enter('changeCoach', [1])
             break
          default:
-            ctx.reply(`You clicked button - ${btn}`)
+            ctx.reply(`Вы нажали кнопку, но у нее нет никакого действия`)
       }
    } else {
       ctx.reply('Без знаний ты не сможешь настроить мои программы')
