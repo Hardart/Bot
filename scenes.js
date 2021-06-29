@@ -1,10 +1,8 @@
 const Scene = require('node-vk-bot-api/lib/scene')
 const Markup = require('node-vk-bot-api/lib/markup')
 const kbd = require('./keyboards')
-const conn = require('./dbConnection')
-const { sendRequest, newKeybord } = require('./functions')
-
-const url = 'http://robb-i.ru/php_bot/post.php'
+const coach = require('./queryCoach')
+const { newKeybord } = require('./functions')
 
 function isNumber(val) {
    return typeof val === 'number'
@@ -21,7 +19,7 @@ module.exports = {
          ctx.session.name = ctx.message.text
 
          ctx.scene.next()
-         ctx.reply('Теперь введи ВК-ID тренера')
+         ctx.reply('Введи ВК-ID тренера (он должен состоять только из цифр)')
       },
       (ctx) => {
          let str = ctx.message.text
@@ -45,30 +43,16 @@ module.exports = {
       (ctx) => {
          ctx.scene.leave()
          const payload = JSON.parse(ctx.message.payload)
-         const body = {
-            value: 'add_coach',
-            coach_name: ctx.session.name,
-            coach_id: ctx.session.id,
-         }
          switch (payload.value) {
             case 'yes':
-               connection.query(
-                  'SELECT * FROM `coaches`',
-                  function (err, results) {
-                     let trol = results.length + 1
-                     connection.query(
-                        'INSERT INTO `coaches` (id, name, vk_id) VALUES (?, ?, ?)',
-                        [trol, 'John', 745641]
-                     )
-                  }
-               )
+               coach.add(ctx.session.name, ctx.session.id)
+               ctx.reply('Готово!', null, kbd.mainMenu)
                break
             case 'no':
                ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
                break
             case 'stepBack':
                ctx.scene.enter('addCoach', [1])
-               console.log('yes')
                break
          }
       }
@@ -77,33 +61,19 @@ module.exports = {
       'deleteCoach',
       (ctx) => {
          ctx.scene.next()
-         // sendRequest('POST', url, { value: 'show_all_coaches' }).then(
-         //    (data) => {
-         //       ctx.reply(
-         //          'Кого необходимо удалить?',
-         //          null,
-         //          Markup.keyboard(newKeybord(data, 2)).oneTime()
-         //       )
-         //    }
-         // )
-         connection.query('SELECT * FROM `coaches`', function (err, results) {
-            let usersData = []
-            results.forEach((user) => {
-               usersData.push(Markup.button(user.name, 'primary', user.id))
-            })
+         coach.select().then((data) => {
             ctx.reply(
                'Кого необходимо удалить?',
                null,
-               Markup.keyboard(newKeybord(usersData, 2)).oneTime()
+               Markup.keyboard(newKeybord(data, 2)).oneTime()
             )
          })
       },
       (ctx) => {
+         ctx.scene.next()
          const payload = JSON.parse(ctx.message.payload)
-         console.log(payload)
          ctx.session.id = payload
          ctx.session.name = ctx.message.text
-         ctx.scene.next()
          ctx.reply(
             `Тренер с именем ${ctx.session.name} будет удалён\nВы уверены?`,
             null,
@@ -113,23 +83,9 @@ module.exports = {
       (ctx) => {
          const payload = JSON.parse(ctx.message.payload)
          ctx.scene.leave()
-         let body = {
-            value: 'delete_coach',
-            coach_id: ctx.session.id,
-            coach_name: ctx.session.name,
-         }
          if (payload.value == 'yes') {
-            // sendRequest('POST', url, body).then((data) => {
-            //    ctx.reply(data, null, kbd.mainMenu)
-            //    console.log(ctx.session.id)
-            // })
-            connection.query(
-               'DELETE FROM `coaches` WHERE `id` = ?',
-               [ctx.session.id],
-               function (err, results) {
-                  console.log(results)
-               }
-            )
+            coach.delete(ctx.session.id)
+            ctx.reply('Готово!', null, kbd.mainMenu)
          } else {
             ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
          }
@@ -139,18 +95,16 @@ module.exports = {
       'changeCoach',
       (ctx) => {
          ctx.scene.next()
-         sendRequest('POST', url, { value: 'show_all_coaches' }).then(
-            (data) => {
-               let body = {
-                  value: 'coach',
-               }
-               ctx.reply(
-                  'Кого необходимо изменить?',
-                  null,
-                  Markup.keyboard(newKeybord(data, 2, body)).oneTime()
-               )
-            }
-         )
+         let body = {
+            value: 'coach',
+         }
+         coach.select().then((data) => {
+            ctx.reply(
+               'Кого необходимо изменить?',
+               null,
+               Markup.keyboard(newKeybord(data, 2, body)).oneTime()
+            )
+         })
       },
       (ctx) => {
          ctx.scene.next()
@@ -165,40 +119,42 @@ module.exports = {
          if (!ctx.message.payload) {
             ctx.session.name = ctx.message.text
          }
-         ctx.reply('Теперь введи ВК-ID тренера', null, kbd.backAction)
+         ctx.reply(
+            'Введи ВК-ID тренера (он должен состоять только из цифр)',
+            null,
+            kbd.backAction
+         )
       },
       (ctx) => {
-         let step = ctx.scene.step
-         ctx.scene.next()
+         let str = ctx.message.text
          ctx.session.id = ctx.message.text
          if (ctx.message.payload) {
-            ctx.scene.enter('changeCoach', [step - 2])
+            ctx.scene.enter('changeCoach', [1])
          } else {
-            ctx.reply(
-               `Изменения:\n${ctx.session.oldName} -> ${ctx.session.name},\nID - ${ctx.session.id}`,
-               null,
-               kbd.confirmBackBtns
-            )
+            if (str.match(/^\d+$/)) {
+               ctx.scene.next()
+               ctx.reply(
+                  `Изменения:\n${ctx.session.oldName} -> ${ctx.session.name},\nID - ${ctx.session.id}`,
+                  null,
+                  kbd.confirmBtns
+               )
+            } else {
+               ctx.scene.enter('changeCoach', [2])
+            }
          }
       },
       (ctx) => {
-         let body = {
-            value: 'update_coaches',
-            coach_id: ctx.session.payload,
-            old_name: ctx.session.oldName,
-            coach_name: ctx.session.name,
-            coach_vk_id: +ctx.session.id,
-         }
          if (ctx.message.payload) {
             let pld = JSON.parse(ctx.message.payload)
             switch (pld.value) {
                case 'yes':
-                  console.log(body)
                   ctx.scene.leave()
+                  coach.change(
+                     ctx.session.payload,
+                     ctx.session.name,
+                     ctx.session.id
+                  )
                   ctx.reply('Готово', null, kbd.mainMenu)
-                  // sendRequest('POST', url, body).then((data) => {
-                  //   ctx.reply(data)
-                  // })
                   break
                case 'no':
                   ctx.scene.leave()

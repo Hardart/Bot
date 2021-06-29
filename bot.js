@@ -1,6 +1,6 @@
 require('dotenv/config')
 const kbd = require('./keyboards')
-const conn = require('./dbConnection')
+const db = require('./dbConnect')
 const scenes = require('./scenes')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
@@ -41,26 +41,6 @@ bot.use(session.middleware())
 bot.use(stage.middleware())
 // ----------------------------
 
-let users = [
-   Markup.button('1', 'primary'),
-   Markup.button('2', 'primary'),
-   Markup.button('3', 'primary'),
-   Markup.button('4', 'primary'),
-   Markup.button('5', 'primary'),
-   Markup.button('6', 'primary'),
-   Markup.button('7', 'primary'),
-   Markup.button('8', 'primary'),
-   Markup.button('9', 'primary'),
-   Markup.button('10', 'primary'),
-   Markup.button('11', 'primary'),
-   Markup.button('12', 'primary'),
-   Markup.button('13', 'primary'),
-   Markup.button('14', 'primary'),
-   Markup.button('15', 'primary'),
-   Markup.button('16', 'primary'),
-   Markup.button('17', 'primary'),
-   Markup.button('18', 'primary'),
-]
 // connection.query(
 //    'INSERT INTO `coaches` (name, vk_id) VALUES (?, ?)',
 //    ['John', 745641],
@@ -73,7 +53,7 @@ let users = [
 // )
 
 bot.command('/config', (ctx) => {
-   ctx.reply(`Отлично!\nВот основные настройки\n${users}`, null, kbd.mainMenu)
+   ctx.reply(`Отлично!\nВот основные настройки`, null, kbd.mainMenu)
 })
 
 bot.on(async (ctx) => {
@@ -120,14 +100,9 @@ async function start() {
       //    useNewUrlParser: true,
       //    useUnifiedTopology: true,
       // })
-      await conn.connect((err) => {
-         if (err) {
-            console.log(err)
-         } else {
-            console.log('БД подключена\n------------------')
-         }
+      db.connection().connect((err) => {
+         err ? console.log(err) : console.log('БД подключена')
       })
-
       app.listen(PORT, () => {
          console.log('Сервер запустился')
       })
