@@ -1,6 +1,6 @@
 require('dotenv/config')
-const mysql = require('mysql2')
 const kbd = require('./keyboards')
+const conn = require('./dbConnection')
 const scenes = require('./scenes')
 const { Padavan, RegData } = require('./models/padavans')
 const express = require('express')
@@ -12,6 +12,7 @@ const Stage = require('node-vk-bot-api/lib/stage')
 const Markup = require('node-vk-bot-api/lib/markup')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
+const { mainMenu } = require('./keyboards')
 const TOKEN = process.env.VK_TOKEN
 const app = express()
 const PORT = process.env.PORT || 80
@@ -19,12 +20,7 @@ const bot = new VkBot({
    token: TOKEN,
    confirmation: process.env.VK_CONFIRM,
 })
-const connection = mysql.createConnection({
-   host: 'mysql.hosting.nic.ru',
-   user: 'h911249946_hard',
-   password: 'qaZ134679',
-   database: 'h911249946_test',
-})
+
 // photo('Castle.png', process.env.VK_ID, TOKEN, bot) // отправка фото
 
 app.set('views', './views')
@@ -75,27 +71,9 @@ let users = [
 //       console.log(results)
 //    }
 // )
-// connection.query(
-//    'DELETE FROM `coaches` WHERE `id` = 23',
-//    function (err, results) {
-//       console.log(results)
-//    }
-// )
 
 bot.command('/config', (ctx) => {
-   let users = ''
-   connection.query('SELECT * FROM `coaches`', function (err, results) {
-      results.forEach((user) => {
-         // console.log(user.name)
-         users += `${user.name}\n`
-      })
-
-      ctx.reply(
-         `Отлично!\nВот основные настройки\n${users}`,
-         null,
-         kbd.mainMenu
-      )
-   })
+   ctx.reply(`Отлично!\nВот основные настройки\n${users}`, null, kbd.mainMenu)
 })
 
 bot.on(async (ctx) => {
@@ -142,7 +120,7 @@ async function start() {
       //    useNewUrlParser: true,
       //    useUnifiedTopology: true,
       // })
-      await connection.connect((err) => {
+      await conn.connect((err) => {
          if (err) {
             console.log(err)
          } else {

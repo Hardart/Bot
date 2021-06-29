@@ -5,20 +5,20 @@ const { Padavan, RegData } = require('../models/padavans')
 const { sendRequest } = require('../functions')
 router.use(express.json())
 router.get('/', async (req, res) => {
-	const allUsers = await Padavan.find()
-	let users = ""
-	for (user of allUsers) {
-		users += user.full_name + "<br>"
-	}
+   const allUsers = await Padavan.find()
+   let users = ''
+   for (user of allUsers) {
+      users += user.full_name + '<br>'
+   }
 
-	// sendRequest('GET', url).then(data => console.log(data))
-	// res.redirect(url)
+   // sendRequest('GET', url).then(data => console.log(data))
+   // res.redirect(url)
 })
 
 router.post('/', async (req, res) => {
-	console.log(req.body)
-	const allUsers = await Padavan.find()
-	res.json(allUsers)
+   console.log(req.body)
+   const allUsers = await Padavan.find()
+   res.json(allUsers)
 })
 
 // const formidableMiddleware = require('express-formidable')

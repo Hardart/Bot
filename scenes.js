@@ -1,14 +1,9 @@
 const Scene = require('node-vk-bot-api/lib/scene')
 const Markup = require('node-vk-bot-api/lib/markup')
 const kbd = require('./keyboards')
+const conn = require('./dbConnection')
 const { sendRequest, newKeybord } = require('./functions')
-const mysql = require('mysql2')
-const connection = mysql.createConnection({
-   host: 'mysql.hosting.nic.ru',
-   user: 'h911249946_hard',
-   password: 'qaZ134679',
-   database: 'h911249946_test',
-})
+
 const url = 'http://robb-i.ru/php_bot/post.php'
 
 function isNumber(val) {
