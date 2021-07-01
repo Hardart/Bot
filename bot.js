@@ -1,6 +1,7 @@
 require('dotenv/config')
 const kbd = require('./keyboards')
 const db = require('./dbConnect')
+const padavans = require('./query')
 const scenes = require('./scenes')
 // const { Padavan, RegData } = require('./models/padavans')
 // const mongoose = require('mongoose')
@@ -32,23 +33,20 @@ app.use(express.urlencoded({ extended: true }))
 const addScene = scenes.addCoach
 const changeScene = scenes.changeCoach
 const deleteScene = scenes.deleteCoach
+const addPadScene = scenes.addPadavan
+const deletePadScene = scenes.deletePadavan
 const session = new Session()
-const stage = new Stage(addScene, changeScene, deleteScene)
+const stage = new Stage(
+	addScene,
+	changeScene,
+	deleteScene,
+	addPadScene,
+	deletePadScene
+)
 
 bot.use(session.middleware())
 bot.use(stage.middleware())
 // --------------------------------------
-
-// connection.query(
-//    'INSERT INTO `coaches` (name, vk_id) VALUES (?, ?)',
-//    ['John', 745641],
-//    function (err, results) {
-//       // results.forEach((user) => {
-//       //    console.log(user.name)
-//       // })
-//       console.log(results)
-//    }
-// )
 
 bot.command('/config', (ctx) => {
 	ctx.reply(`Отлично!\nВот основные настройки`, null, kbd.mainMenu)
@@ -81,6 +79,15 @@ bot.on(async (ctx) => {
 			case 'stepBack':
 				ctx.scene.enter('changeCoach', [1])
 				break
+			case 'padavan_config':
+				ctx.reply('Выбери действие', null, kbd.padavanMenu)
+				break
+			case 'add_padavan':
+				ctx.scene.enter('addPadavan')
+				break
+			case 'delete_padavan':
+				ctx.scene.enter('deletePadavan')
+				break
 			default:
 				ctx.reply(`Вы нажали кнопку, но у нее нет никакого действия`)
 		}
@@ -110,3 +117,6 @@ async function start() {
 }
 
 start()
+
+// padavans.selectAll('coaches').then(([, users]) => console.log(users))
+// padavans.altDel(8)
