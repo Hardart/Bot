@@ -1,42 +1,58 @@
 const Scene = require('node-vk-bot-api/lib/scene')
 const Markup = require('node-vk-bot-api/lib/markup')
 const kbd = require('./keyboards')
-const coach = require('./queryCoach')
 const query = require('./query')
 const { newKeybord } = require('./functions')
 
 function isNumber(val) {
 	return typeof val === 'number'
 }
-const addC = new Scene(
+const addC = new Scene( // добавить тренера
 	'addCoach',
 	(ctx) => {
 		ctx.scene.next()
-		ctx.reply('Напиши полное фамилию и имя нового тренера')
+		ctx.reply(
+			'Напиши полное фамилию и имя нового тренера',
+			null,
+			kbd.backAction
+		)
 	},
 	(ctx) => {
 		ctx.session.name = ctx.message.text
-
-		ctx.scene.next()
-		ctx.reply('Введи ВК-ID тренера (он должен состоять только из цифр)')
-	},
-	(ctx) => {
-		let str = ctx.message.text
-		if (str.match(/^\d+$/)) {
-			ctx.scene.next()
-			ctx.session.id = ctx.message.text
-			ctx.reply(
-				`Имя - ${ctx.session.name},\nVK_id - ${ctx.session.id},\nдобавить в список тренеров?`,
-				null,
-				kbd.confirmBtns
-			)
+		if (ctx.message.payload) {
+			ctx.reply('Выбери действие', null, kbd.coachMenu)
+			ctx.scene.leave()
 		} else {
+			ctx.scene.next()
 			ctx.reply(
-				'VK_id должен состоять только из цифр!\nВведи id заново.',
+				'Введи ВК-ID тренера (он должен состоять только из цифр)',
 				null,
 				kbd.backAction
 			)
-			ctx.scene.enter('addCoach', [1])
+		}
+	},
+	(ctx) => {
+		let str = ctx.message.text
+		if (ctx.message.payload) {
+			ctx.scene.next()
+			ctx.reply('Выбери действие', null, kbd.coachMenu)
+		} else {
+			if (str.match(/^\d+$/)) {
+				ctx.scene.next()
+				ctx.session.id = ctx.message.text
+				ctx.reply(
+					`Имя - ${ctx.session.name},\nVK_id - ${ctx.session.id},\nдобавить в список тренеров?`,
+					null,
+					kbd.confirmBtns
+				)
+			} else {
+				ctx.reply(
+					'VK_id должен состоять только из цифр!\nВведи id заново.',
+					null,
+					kbd.backAction
+				)
+				ctx.scene.enter('addCoach', [1])
+			}
 		}
 	},
 	(ctx) => {
@@ -51,16 +67,16 @@ const addC = new Scene(
 				ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
 				break
 			case 'stepBack':
-				ctx.scene.enter('addCoach', [1])
+				ctx.scene.enter('addCoach')
 				break
 		}
 	}
 )
-const delC = new Scene(
+const delC = new Scene( // удалить тренера
 	'deleteCoach',
 	(ctx) => {
 		ctx.scene.next()
-		coach.select().then((data) => {
+		query.selectAll('coaches').then(([data]) => {
 			ctx.reply(
 				'Кого необходимо удалить?',
 				null,
@@ -69,28 +85,39 @@ const delC = new Scene(
 		})
 	},
 	(ctx) => {
-		ctx.scene.next()
 		const payload = JSON.parse(ctx.message.payload)
-		ctx.session.id = payload
-		ctx.session.name = ctx.message.text
-		ctx.reply(
-			`Тренер с именем ${ctx.session.name} будет удалён\nВы уверены?`,
-			null,
-			kbd.confirmBtns
-		)
+		if (payload.value == 'cancel') {
+			ctx.scene.leave()
+			ctx.reply('Выбери действие', null, kbd.coachMenu)
+		} else {
+			ctx.scene.next()
+			ctx.session.id = payload
+			ctx.session.name = ctx.message.text
+			ctx.reply(
+				`Тренер с именем ${ctx.session.name} будет удалён\nВы уверены?`,
+				null,
+				kbd.confirmBtns
+			)
+		}
 	},
 	(ctx) => {
 		const payload = JSON.parse(ctx.message.payload)
 		ctx.scene.leave()
-		if (payload.value == 'yes') {
-			coach.delete(ctx.session.id)
-			ctx.reply('Готово!', null, kbd.mainMenu)
-		} else {
-			ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
+		switch (payload.value) {
+			case 'yes':
+				query.delete(ctx.session.id, 'coaches', 'id')
+				ctx.reply('Готово!', null, kbd.mainMenu)
+				break
+			case 'no':
+				ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
+				break
+			case 'stepBack':
+				ctx.scene.enter('deleteCoach')
+				break
 		}
 	}
 )
-const changeC = new Scene(
+const changeC = new Scene( // изменить тренера
 	'changeCoach',
 	(ctx) => {
 		ctx.scene.next()
@@ -107,11 +134,13 @@ const changeC = new Scene(
 	},
 	(ctx) => {
 		ctx.scene.next()
-		if (isNumber(JSON.parse(ctx.message.payload))) {
+		if (ctx.message.payload && isNumber(JSON.parse(ctx.message.payload))) {
 			ctx.session.payload = JSON.parse(ctx.message.payload)
 			ctx.session.oldName = ctx.message.text
+			ctx.reply('Напиши полное фамилию и имя нового тренера')
+		} else {
+			ctx.scene.enter('changeCoach', 0)
 		}
-		ctx.reply('Напиши полное фамилию и имя нового тренера')
 	},
 	(ctx) => {
 		ctx.scene.next()
@@ -167,7 +196,7 @@ const changeC = new Scene(
 	}
 )
 
-const addP = new Scene(
+const addP = new Scene( // добавить ученика
 	'addPadavan',
 	(ctx) => {
 		ctx.scene.next()
@@ -188,11 +217,11 @@ const addP = new Scene(
 		if (str.match(/^\d+$/)) {
 			ctx.scene.next()
 			ctx.session.vkid = ctx.message.text
-			coach.select().then((data) => {
+			query.selectAll('coaches').then(([users]) => {
 				ctx.reply(
 					'Назначить тренера',
 					null,
-					Markup.keyboard(newKeybord(data, 2)).oneTime()
+					Markup.keyboard(newKeybord(users, 2)).oneTime()
 				)
 			})
 		} else {
@@ -213,10 +242,11 @@ const addP = new Scene(
 		const payload = JSON.parse(ctx.message.payload)
 		switch (payload.value) {
 			case 'yes':
-				pad.add(
-					ctx.session.login,
-					ctx.session.name,
+				query.add(
+					'padavans',
 					ctx.session.vkid,
+					ctx.session.name,
+					ctx.session.login,
 					ctx.session.coach
 				)
 				ctx.reply('Готово!', null, kbd.mainMenu)
@@ -231,16 +261,16 @@ const addP = new Scene(
 	}
 )
 
-const delP = new Scene(
+const delP = new Scene( // удалить ученика
 	'deletePadavan',
 	(ctx) => {
 		let body = {
 			value: 'coach',
 		}
-		pad.select().then(([kbd, users]) => {
+		query.selectAll('padavans').then(([data, users]) => {
 			if (users.length == 0) {
 				ctx.scene.leave()
-				ctx.reply('Список учеников пуст', null, kbd.mainMenu)
+				ctx.reply('Список учеников пуст', null, kbd.padavanMenu)
 			} else {
 				let list = ''
 				users.forEach((user) => {
@@ -249,7 +279,7 @@ const delP = new Scene(
 				ctx.reply(
 					`Выберите ученика\n${list}`,
 					null,
-					Markup.keyboard(newKeybord(kbd, 2, body)).oneTime()
+					Markup.keyboard(newKeybord(data, 2, body)).oneTime()
 				)
 				ctx.scene.next()
 			}
@@ -278,8 +308,79 @@ const delP = new Scene(
 			switch (payload.value) {
 				case 'yes':
 					ctx.scene.leave()
-					pad.delete(ctx.session.payload)
+					query.delete(ctx.session.payload)
 					ctx.reply(`Ученик с логином ${ctx.session.payload} удалён`)
+					setTimeout(() => {
+						ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
+					}, 2000)
+					break
+				case 'no':
+					ctx.scene.leave()
+					ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
+					break
+				case 'stepBack':
+					ctx.scene.enter('deletePadavan', 0)
+					break
+				default:
+					break
+			}
+		} else {
+			console.log(ctx.scene.step)
+			ctx.reply('Необходимо нажимать кнопки, я не понимаю ввод с клавиатуры')
+			ctx.scene.enter('deletePadavan', 1)
+		}
+	}
+)
+
+const clean = new Scene( // сбросить данные
+	'clearData',
+	(ctx) => {
+		let body = {
+			value: 'coach',
+		}
+		query.selectAll('padavans').then(([data, users]) => {
+			if (users.length == 0) {
+				ctx.scene.leave()
+				ctx.reply('Список учеников пуст', null, kbd.padavanMenu)
+			} else {
+				let list = ''
+				users.forEach((user) => {
+					list += `${user.full_name} - ${user.ren_login}\n`
+				})
+				ctx.reply(
+					`Выберите ученика, кому небоходимо сбросить все набранные баллы\n${list}`,
+					null,
+					Markup.keyboard(newKeybord(data, 2, body)).oneTime()
+				)
+				ctx.scene.next()
+			}
+		})
+	},
+	(ctx) => {
+		if (ctx.message.payload) {
+			ctx.scene.next()
+			let payload = JSON.parse(ctx.message.payload)
+			if (payload.button) {
+				ctx.session.payload = payload.button
+			}
+			ctx.reply(
+				`Баллы ученика с логином ${ctx.session.payload} будут сброшены\nВы уверены?`,
+				null,
+				kbd.confirmBtns
+			)
+		} else {
+			ctx.scene.leave()
+			ctx.scene.enter('deletePadavan', 0)
+		}
+	},
+	(ctx) => {
+		if (ctx.message.payload) {
+			let payload = JSON.parse(ctx.message.payload)
+			switch (payload.value) {
+				case 'yes':
+					ctx.scene.leave()
+					query.resetPoints(ctx.session.payload)
+					ctx.reply(`Баллы сброшены`)
 					setTimeout(() => {
 						ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
 					}, 2000)
@@ -307,4 +408,5 @@ module.exports = {
 	changeCoach: changeC,
 	deletePadavan: delP,
 	addPadavan: addP,
+	cleanPoints: clean,
 }

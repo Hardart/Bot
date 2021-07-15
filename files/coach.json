@@ -1,0 +1,16 @@
+{
+	"CC_77": {
+		"name": "John",
+		"age": 23,
+		"gender": "Male",
+		"department": "History",
+		"car": "Honda"
+	},
+	"CC_99": {
+		"name": "Dana",
+		"age": 27,
+		"gender": "Female",
+		"department": "Organic",
+		"car": "Mazda"
+	}
+}
