@@ -43,6 +43,7 @@ const deleteScene = scenes.deleteCoach
 const addPadScene = scenes.addPadavan
 const deletePadScene = scenes.deletePadavan
 const cleanPoints = scenes.cleanPoints
+const sendToCoach = scenes.send
 const session = new Session()
 const stage = new Stage(
 	addScene,
@@ -50,7 +51,8 @@ const stage = new Stage(
 	deleteScene,
 	addPadScene,
 	deletePadScene,
-	cleanPoints
+	cleanPoints,
+	sendToCoach
 )
 
 bot.use(session.middleware())
@@ -120,6 +122,9 @@ bot.on(async (ctx) => {
 			case 'add_padavan':
 				ctx.scene.enter('addPadavan')
 				break
+			case 'send_to_coach':
+				ctx.scene.enter('sendToCoach')
+				break
 			case 'clear_data':
 				ctx.scene.enter('clearData')
 				break
@@ -156,7 +161,7 @@ async function start() {
 
 start()
 
-// padavans.selectAll('padavans').then(([, users]) => console.log(users))
+// padavans.selectAll('coaches').then(([data, users]) => {})
 // padavans.altDel(8)
 
 const user = {

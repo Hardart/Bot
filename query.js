@@ -42,6 +42,12 @@ function changeUser(id, name, vk_id, table = 'coaches') {
 		id,
 	])
 }
+function sendToCoach(coach, ren_login, table = 'padavans') {
+	connect.query(`UPDATE ${table} SET coach = ? WHERE ren_login = ?`, [
+		coach,
+		ren_login,
+	])
+}
 function reset(ren_login) {
 	connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [
 		ren_login,
@@ -53,4 +59,5 @@ module.exports = {
 	add: addUser,
 	change: changeUser,
 	resetPoints: reset,
+	sendToCoach: sendToCoach,
 }

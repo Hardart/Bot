@@ -23,7 +23,11 @@ const coachMenu = Markup.keyboard([
 const padavanMenu = Markup.keyboard([
 	[Markup.button('Сбросить данные', 'positive', { value: 'clear_data' })],
 	[Markup.button('Назначить тренера', 'primary', { value: 'send_to_coach' })],
-	[Markup.button('Добавить ученика', 'primary', { value: 'add_padavan' })],
+	[
+		Markup.button('Добавить ученика (временно)', 'primary', {
+			value: 'add_padavan',
+		}),
+	],
 	[Markup.button('Удалить ученика', 'secondary', { value: 'delete_padavan' })],
 	[Markup.button('Назад', 'negative', { value: 'main_menu' })],
 ]).oneTime()
