@@ -5,14 +5,16 @@ const Markup = require('node-vk-bot-api/lib/markup')
 function selectAll(table) {
 	return connect.query(`SELECT * FROM ${table}`).then(([users]) => {
 		let usersData = []
+		let i = 0
 		users.forEach((user) => {
 			usersData.push(
 				Markup.button(
 					user.name ?? user.ren_login,
 					'primary',
-					user.id ?? undefined
+					user.id ? user.id : { button: user.ren_login, id: i }
 				)
 			)
+			i++
 		})
 		return [usersData, users]
 	})
@@ -27,8 +29,8 @@ function addUser(table = 'coaches', ...args) {
 		})
 	} else {
 		connect.query(
-			'INSERT INTO padavans (vk_id, full_name, ren_login, coach, test_points) VALUES (?, ?, ?, ?, ?)',
-			[args[0], args[1], args[2], args[3], 8]
+			'INSERT INTO padavans (vk_id, full_name, ren_login, coach) VALUES (?, ?, ?, ?)',
+			[args[0], args[1], args[2], args[3]]
 		)
 	}
 }

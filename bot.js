@@ -135,7 +135,7 @@ bot.on(async (ctx) => {
 				ctx.reply(`Вы нажали кнопку, но у нее нет никакого действия`)
 		}
 	} else {
-		ctx.reply('Без знаний ты не сможешь настроить мои программы')
+		ctx.reply('Без кода доступа ты не сможешь настроить мои программы')
 	}
 })
 
@@ -187,7 +187,7 @@ const user = {
 // 	})
 // }
 
-// padavans.selectAll('coaches').then(([data]) => {
+// padavans.selectAll('padavans').then(([data, users]) => {
 // 	let byaf = Markup.keyboard(newKeybord(data, 2)).oneTime()
-// 	console.log(byaf)
+// 	console.log(data)
 // })

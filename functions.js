@@ -42,6 +42,7 @@ module.exports = {
 		} else if (summ % 3 == 0 || summ > 10) {
 			columns = 3
 		}
+
 		for (let i = 0; i < 10; i++) {
 			arrayOfButtons = []
 			for (let j = i * columns; j < (i + 1) * columns; j++) {

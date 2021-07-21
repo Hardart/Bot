@@ -205,11 +205,13 @@ const addP = new Scene( // добавить ученика
 	},
 	(ctx) => {
 		ctx.session.name = ctx.message.text
-		ctx.reply('Введи Ren_login падавана (CC_66)')
+		ctx.reply(
+			'Введи Ren_login падавана (напиши только цифры логина,\nпрефикс trainCC будет добавлен автоматически)'
+		)
 		ctx.scene.next()
 	},
 	(ctx) => {
-		ctx.session.login = ctx.message.text
+		ctx.session.login = 'trainCC_' + ctx.message.text
 		ctx.reply('Введи ВК-ID падавана (он должен состоять только из цифр)')
 		ctx.scene.next()
 	},
@@ -234,7 +236,7 @@ const addP = new Scene( // добавить ученика
 		ctx.scene.next()
 		ctx.session.coach = ctx.message.payload
 		ctx.reply(
-			`Имя - ${ctx.session.name},\nVK_id - ${ctx.session.vkid},\nЛогин - ${ctx.session.login}\nТренер - ${ctx.message.text}\nдобавить в список падаванов?`,
+			`Имя - ${ctx.session.name},\nVK_id - ${ctx.session.vkid},\nЛогин - ${ctx.session.login},\nТренер - ${ctx.message.text}\nдобавить в список учеников?`,
 			null,
 			kbd.confirmBtns
 		)
@@ -278,6 +280,7 @@ const delP = new Scene( // удалить ученика
 				ctx.scene.leave()
 				ctx.reply('Список учеников пуст', null, kbd.padavanMenu)
 			} else {
+				ctx.session.users = users
 				let list = ''
 				users.forEach((user) => {
 					list += `${user.full_name} - ${user.ren_login}\n`
@@ -297,13 +300,13 @@ const delP = new Scene( // удалить ученика
 			if (payload.button) {
 				ctx.scene.next()
 				ctx.session.payload = payload.button
+				let user = ctx.session.users[payload.id]
 				ctx.reply(
-					`Ученик с логином ${ctx.session.payload} будет удалён\nВы уверены?`,
+					`Ученик:\nЛогин - ${ctx.session.payload},\nИмя - ${user.full_name}\nбудет удалён.\nВы уверены?`,
 					null,
 					kbd.confirmBtns
 				)
-			}
-			if (payload.value == 'cancel') {
+			} else {
 				ctx.reply('Выбери действие', null, kbd.padavanMenu)
 				ctx.scene.leave()
 			}
@@ -362,16 +365,23 @@ const clean = new Scene( // сбросить данные
 	},
 	(ctx) => {
 		if (ctx.message.payload) {
-			ctx.scene.next()
 			let payload = JSON.parse(ctx.message.payload)
 			if (payload.button) {
+				ctx.scene.next()
 				ctx.session.payload = payload.button
+				ctx.reply(
+					`Баллы ученика с логином ${ctx.session.payload} будут сброшены\nВы уверены?`,
+					null,
+					kbd.confirmBtns
+				)
+			} else {
+				ctx.scene.leave()
+				ctx.reply(
+					'Вы вернулись в настройки учеников',
+					null,
+					kbd.padavanMenu
+				)
 			}
-			ctx.reply(
-				`Баллы ученика с логином ${ctx.session.payload} будут сброшены\nВы уверены?`,
-				null,
-				kbd.confirmBtns
-			)
 		} else {
 			ctx.scene.leave()
 			ctx.scene.enter('deletePadavan', 0)
