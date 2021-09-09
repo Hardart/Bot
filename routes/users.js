@@ -7,22 +7,22 @@ router.use(express.json())
 router.use(express.urlencoded({ extended: true }))
 
 router.get('/', async (req, res) => {
-	let url = 'http://46.183.163.108/'
+  let url = 'http://46.183.163.108/'
 
-	let body = {
-		name: 'hard',
-	}
-	// sendRequest('post', url, body).then((res) => {
-	// 	console.log(res)
-	// })
-	res.redirect(url)
+  let body = {
+    name: 'hard',
+  }
+  // sendRequest('post', url, body).then((res) => {
+  // 	console.log(res)
+  // })
+  res.redirect(url)
 })
 
 router.post('/', async (req, res) => {
-	console.log(req.body)
-	res.setHeader('Access-Control-Allow-Origin', '*')
-	res.setHeader('Content-Type', 'text/html; charset=UTF-8')
-	res.end('ok')
+  console.log(req.body)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8')
+  res.end('ok')
 })
 
 // const formidableMiddleware = require('express-formidable')
