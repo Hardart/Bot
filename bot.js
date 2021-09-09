@@ -6,7 +6,7 @@ const { newKeybord, photo } = require('./functions')
 const db = require('./dbConnect')
 const padavans = require('./query')
 const scenes = require('./scenes')
-// const { Padavan, RegData } = require('./models/padavans')
+const { Padavan, Test, Coach } = require('./mongoModels')
 const mongoose = require('mongoose')
 const express = require('express')
 const VkBot = require('node-vk-bot-api')
@@ -18,6 +18,7 @@ const pugRoute = require('./routes/pug')
 const Markup = require('node-vk-bot-api/lib/markup')
 const script = require('./routes/pug')
 const { query } = require('express')
+const { selectAll } = require('./query')
 const TOKEN = process.env.VK_TOKEN
 const app = express()
 const PORT = process.env.PORT || 80
@@ -54,7 +55,13 @@ const stage = new Stage(
   cleanPoints,
   sendToCoach
 )
-
+// Padavan.findOne({ vk_id: '78943244' }).then((err, user) => {
+//   if (user === undefined) {
+//     console.log(err)
+//   } else {
+//     console.log(user.full_name)
+//   }
+// })
 bot.use(session.middleware())
 bot.use(stage.middleware())
 // --------------------------------------

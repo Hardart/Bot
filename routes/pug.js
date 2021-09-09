@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const { Padavan } = require('../models/padavans')
+const { Padavan } = require('../mongoModels')
 router.get('/', async (req, res) => {
-	const allPadavans = await Padavan.find()
-	res.render('index', {
-		title: 'Шаблонизатор PUG',
-		users: allPadavans
-	})
+  const allPadavans = await Padavan.findOne({ vk_id: '78943244' }).exec()
+  res.render('index', {
+    title: 'Шаблонизатор PUG',
+    users: allPadavans,
+  })
 })
 module.exports = router
