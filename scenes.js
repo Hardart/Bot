@@ -417,7 +417,7 @@ const clean = new Scene( // сбросить данные
 	}
 )
 
-const sendToCoach = new Scene( // сбросить данные
+const sendToCoach = new Scene( // отправить к другому тренеру
 	'sendToCoach',
 	(ctx) => {
 		query.selectAll('padavans').then(([data, users]) => {

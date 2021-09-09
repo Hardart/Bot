@@ -59,13 +59,13 @@ module.exports = {
 		return buttons
 	},
 	sendRequest: function (method, url, body = null) {
-		const headers = {
-			'Content-Type': 'application/json',
-		}
+		// const headers = {
+		// 	'Content-Type': 'application/json',
+		// }
 		return fetch(url, {
 			method: method,
 			body: body ? JSON.stringify(body) : null,
-			headers: headers,
+			// headers: headers,
 		}).then((obj) => obj.json())
 	},
 }

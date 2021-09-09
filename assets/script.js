@@ -14,7 +14,7 @@ function sendRequest(method, url, body) {
 }
 
 btn.onclick = () => {
-	let endpoint = 'http://89.108.88.140/post'
+	let endpoint = 'http://46.183.163.108/post'
 	let body = {
 		name: 'john',
 	}

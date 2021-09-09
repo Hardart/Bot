@@ -62,6 +62,7 @@ bot.use(stage.middleware())
 bot.command('/config', (ctx) => {
 	ctx.reply(`Отлично!\nВот основные настройки`, null, kbd.mainMenu)
 })
+
 bot.command('Test', async (ctx) => {
 	fs.readFile('./files/coach.json', 'utf8', (err, data) => {
 		if (err) {
@@ -160,34 +161,3 @@ async function start() {
 }
 
 start()
-
-// padavans.selectAll('coaches').then(([data, users]) => {})
-// padavans.altDel(8)
-
-const user = {
-	name: 'John',
-	age: 23,
-	gender: 'Male',
-	department: 'History',
-	car: 'Honda',
-}
-
-// let login = 'CC_77'
-// let jsonObj = new Object()
-// jsonObj[login] = user
-// let writeData = JSON.stringify(jsonObj)
-// let file = './files/coach.json'
-// if (!fs.existsSync(file)) {
-// 	fs.writeFileSync(file, writeData, (err, data) => {
-// 		if (err) {
-// 			console.log(err)
-// 		} else {
-// 			console.log(data)
-// 		}
-// 	})
-// }
-
-// padavans.selectAll('padavans').then(([data, users]) => {
-// 	let byaf = Markup.keyboard(newKeybord(data, 2)).oneTime()
-// 	console.log(data)
-// })
