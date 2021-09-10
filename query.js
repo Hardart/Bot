@@ -1,4 +1,4 @@
-const { Coach, Padavan } = require('./mongoModels')
+const { Coach, Padavan, Test } = require('./mongoModels')
 const Markup = require('node-vk-bot-api/lib/markup')
 
 async function buttonsAndArray(collection) {
@@ -39,6 +39,14 @@ async function add(collection = 'coaches', ...args) {
             coach_id: args[3],
          })
          await padavan.save()
+         break
+      case 'tests':
+         const test = new Test({
+            title: args[0],
+            prefix: args[1],
+            points: args[2],
+         })
+         await test.save()
          break
       default:
          break

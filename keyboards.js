@@ -52,12 +52,22 @@ const confirmBtns = Markup.keyboard([
    ],
 ]).oneTime()
 
+const points = Markup.keyboard([
+   [
+      Markup.button('3', 'primary', { value: '3' }),
+      Markup.button('4', 'primary', { value: '4' }),
+      Markup.button('5', 'primary', { value: '5' }),
+   ],
+   [Markup.button('Назад', 'negative', { value: 'stepBack' })],
+]).oneTime()
+
 module.exports = {
    mainMenu: mainMenu,
    coachMenu: coachMenu,
    padavanMenu: padavanMenu,
    testMenu: testMenu,
    confirmBtns: confirmBtns,
+   points: points,
    backAction: Markup.keyboard([
       Markup.button('Отменить', 'negative', { value: 'cancel' }),
    ]).oneTime(),

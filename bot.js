@@ -40,6 +40,8 @@ const addPadScene = scenes.addPadavan
 const deletePadScene = scenes.deletePadavan
 const cleanPoints = scenes.cleanPoints
 const sendToCoach = scenes.send
+const addTest = scenes.addTest
+const deleteTest = scenes.deleteTest
 const session = new Session()
 const stage = new Stage(
    addScene,
@@ -48,7 +50,9 @@ const stage = new Stage(
    addPadScene,
    deletePadScene,
    cleanPoints,
-   sendToCoach
+   sendToCoach,
+   addTest,
+   deleteTest
 )
 
 bot.use(session.middleware())
@@ -128,16 +132,16 @@ bot.on(async (ctx) => {
             break
 
          case 'test_config':
-            ctx.reply('Выбери действие', null, kbd.coachMenu)
+            ctx.reply('Выбери действие', null, kbd.testMenu)
             break
-         case 'add_coach':
-            ctx.scene.enter('addCoach')
+         case 'add_test':
+            ctx.scene.enter('addTest')
             break
          case 'change_coach':
             ctx.scene.enter('changeCoach')
             break
-         case 'delete_coach':
-            ctx.scene.enter('deleteCoach')
+         case 'delete_test':
+            ctx.scene.enter('deleteTest')
             break
 
          case 'stepBack':
