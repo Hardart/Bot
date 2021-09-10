@@ -5,6 +5,7 @@ const kbd = require('./keyboards')
 const { newKeybord, photo } = require('./functions')
 const scenes = require('./scenes')
 const { Padavan, Test, Coach } = require('./mongoModels')
+const query = require('./query')
 const mongoose = require('mongoose')
 const express = require('express')
 const VkBot = require('node-vk-bot-api')
@@ -42,6 +43,7 @@ const cleanPoints = scenes.cleanPoints
 const sendToCoach = scenes.send
 const addTest = scenes.addTest
 const deleteTest = scenes.deleteTest
+const changeTest = scenes.changeTest
 const session = new Session()
 const stage = new Stage(
    addScene,
@@ -52,7 +54,8 @@ const stage = new Stage(
    cleanPoints,
    sendToCoach,
    addTest,
-   deleteTest
+   deleteTest,
+   changeTest
 )
 
 bot.use(session.middleware())
@@ -63,7 +66,7 @@ bot.command('/config', (ctx) => {
    ctx.reply(`Отлично!\nВот основные настройки`, null, kbd.mainMenu)
 })
 
-bot.command('Test', async (ctx) => {
+bot.command('file', async (ctx) => {
    fs.readFile('./files/coach.json', 'utf8', (err, data) => {
       if (err) {
          console.log(err)
@@ -86,6 +89,9 @@ bot.command('Test', async (ctx) => {
    // console.log(user)
    await ctx.reply('ok')
 })
+// query.selectAll(Test).then((el) => console.log(el))
+
+// Test.find().then((el) => console.log(el))
 
 bot.on(async (ctx) => {
    const payload = ctx.message.payload
@@ -137,8 +143,8 @@ bot.on(async (ctx) => {
          case 'add_test':
             ctx.scene.enter('addTest')
             break
-         case 'change_coach':
-            ctx.scene.enter('changeCoach')
+         case 'change_test':
+            ctx.scene.enter('changeTest')
             break
          case 'delete_test':
             ctx.scene.enter('deleteTest')
@@ -148,7 +154,11 @@ bot.on(async (ctx) => {
             ctx.scene.enter('changeCoach', [1])
             break
          default:
-            ctx.reply(`Вы нажали кнопку, но она пока еще не настроена`)
+            ctx.reply(
+               `Вы нажали кнопку, но она пока еще не настроена`,
+               null,
+               kbd.mainMenu
+            )
       }
    }
    // УЧЕНИК

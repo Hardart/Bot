@@ -54,9 +54,9 @@ const confirmBtns = Markup.keyboard([
 
 const points = Markup.keyboard([
    [
-      Markup.button('3', 'primary', { value: '3' }),
-      Markup.button('4', 'primary', { value: '4' }),
-      Markup.button('5', 'primary', { value: '5' }),
+      Markup.button('3', 'primary', 3),
+      Markup.button('4', 'primary', 4),
+      Markup.button('5', 'primary', 5),
    ],
    [Markup.button('Назад', 'negative', { value: 'stepBack' })],
 ]).oneTime()

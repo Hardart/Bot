@@ -1,18 +1,36 @@
 const { Coach, Padavan, Test } = require('./mongoModels')
 const Markup = require('node-vk-bot-api/lib/markup')
 
+function collectButtons(collection, user, i) {
+   switch (collection) {
+      case Coach:
+         return Markup.button(user.full_name, 'primary', user.coach_id)
+         break
+      case Padavan:
+         return Markup.button(user.ren_login, 'primary', {
+            button: user.ren_login,
+            id: i,
+         })
+         break
+      case Test:
+         return Markup.button(
+            user.prefix + '_' + user.title,
+            'primary',
+            user._id
+         )
+         break
+
+      default:
+         break
+   }
+}
+
 async function buttonsAndArray(collection) {
-   const users = await collection.find().sort({ full_name: 1 })
+   const users = await collection.find()
    let buttons = []
    let i = 0
    users.forEach((user) => {
-      buttons.push(
-         Markup.button(
-            user.full_name ?? user.ren_login,
-            'primary',
-            user.ren_login ? { button: user.ren_login, id: i } : user.coach_id
-         )
-      )
+      buttons.push(collectButtons(collection, user, i))
       i++
    })
    return [buttons, users]
@@ -53,14 +71,11 @@ async function add(collection = 'coaches', ...args) {
    }
 }
 
-async function changeUser(collection, id, vkid, name) {
+async function changeUser(collection, field, params) {
    let obj = {
-      $set: {
-         vk_id: vkid,
-         full_name: name,
-      },
+      $set: params,
    }
-   await collection.updateOne({ coach_id: id }, obj)
+   await collection.updateOne(field, obj)
 }
 
 function sendToCoach(coach, ren_login, table = 'padavans') {

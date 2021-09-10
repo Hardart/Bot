@@ -183,9 +183,8 @@ const changeC = new Scene( // изменить тренера
                ctx.scene.leave()
                await query.change(
                   Coach,
-                  ctx.session.payload,
-                  ctx.session.id,
-                  ctx.session.name
+                  { coach_id: ctx.session.payload },
+                  { vk_id: ctx.session.id, full_name: ctx.session.name }
                )
                ctx.reply('Готово', null, kbd.mainMenu)
                break
@@ -548,7 +547,6 @@ const addT = new Scene( // добавить тест
          ctx.reply('Выбери действие', null, kbd.coachMenu)
       } else {
          let payload = JSON.parse(ctx.message.payload)
-         console.log(payload)
          ctx.scene.next()
          ctx.session.points = payload.value
          ctx.reply(
@@ -585,20 +583,11 @@ const delT = new Scene( // удалить тренера
    'deleteTest',
    async (ctx) => {
       ctx.scene.next()
-      const tests = await Test.find()
-      let buttons = []
-      let i = 0
-      tests.forEach((test) => {
-         buttons.push(
-            Markup.button(test.prefix + '_' + test.title, 'primary', test._id)
-         )
-         i++
-      })
-
+      const [tests] = await query.selectAll(Test)
       ctx.reply(
          'Кого необходимо удалить?',
          null,
-         Markup.keyboard(newKeybord(buttons)).oneTime()
+         Markup.keyboard(newKeybord(tests)).oneTime()
       )
    },
    async (ctx) => {
@@ -636,6 +625,122 @@ const delT = new Scene( // удалить тренера
    }
 )
 
+const changeT = new Scene( // изменить тест
+   'changeTest',
+   async (ctx) => {
+      ctx.scene.next()
+      const [tests] = await query.selectAll(Test)
+      if (tests) {
+         ctx.reply(`В списке тестов пусто...`, null, kbd.testMenu)
+      } else {
+         ctx.reply(
+            'Выбери тест, который необходимо изменить?',
+            null,
+            Markup.keyboard(newKeybord(tests)).oneTime()
+         )
+      }
+   },
+   (ctx) => {
+      if (ctx.message.payload) {
+         if (JSON.parse(ctx.message.payload).value == 'cancel') {
+            ctx.reply('Выберите действие', null, kbd.testMenu)
+            ctx.scene.leave()
+         } else {
+            ctx.scene.next()
+            ctx.session.id = JSON.parse(ctx.message.payload)
+            ctx.session.oldName = ctx.message.text
+            ctx.reply(
+               'Напиши новый префикс теста (ИТ, ДТ...)',
+               null,
+               kbd.backAction
+            )
+         }
+      } else {
+         ctx.scene.leave()
+         ctx.reply(
+            'Писать не нужно, жми на кнопки что появляются ниже\nСейчас начнём сначала...'
+         )
+         setTimeout(() => {
+            ctx.scene.enter('changeTest', 0)
+         }, 4000)
+      }
+   },
+   (ctx) => {
+      if (ctx.message.payload) {
+         ctx.reply('Изменения отменены', null, kbd.testMenu)
+         ctx.scene.leave()
+      } else {
+         ctx.scene.next()
+         ctx.session.prefix = ctx.message.text
+         ctx.reply(
+            `Сейчас название теста - ${ctx.session.oldName}\nНапиши как ты хочешь его изменить`,
+            null,
+            kbd.backAction
+         )
+      }
+   },
+   (ctx) => {
+      ctx.session.title = ctx.message.text
+      if (ctx.message.payload) {
+         ctx.reply('Изменения отменены', null, kbd.testMenu)
+         ctx.scene.leave()
+      } else {
+         ctx.scene.next()
+         ctx.reply(
+            `Укажи сколько баллов будем начислять за новый тест`,
+            null,
+            kbd.points
+         )
+      }
+   },
+   (ctx) => {
+      if (!ctx.message.payload) {
+         ctx.scene.leave()
+         ctx.reply(
+            `Если написано "Укажи..." значит нужно выбрать один из предложенных вариантов\nСейчас начнём сначала...`
+         )
+         setTimeout(() => {
+            ctx.scene.enter('changeTest', 0)
+         }, 4000)
+      } else {
+         ctx.scene.next()
+         ctx.session.points = JSON.parse(ctx.message.payload)
+         ctx.reply(
+            `Новый тест - ${ctx.session.prefix}_${ctx.session.title}\nБаллы за тест - ${ctx.session.points}\nОбновить информацию в базе данных?`,
+            null,
+            kbd.confirmBtns
+         )
+      }
+   },
+   async (ctx) => {
+      if (ctx.message.payload) {
+         let pld = JSON.parse(ctx.message.payload)
+         switch (pld.value) {
+            case 'yes':
+               ctx.scene.leave()
+               await query.change(
+                  Test,
+                  { _id: ctx.session.id },
+                  {
+                     title: ctx.session.title,
+                     prefix: ctx.session.prefix,
+                     points: ctx.session.points,
+                  }
+               )
+               ctx.reply('Готово', null, kbd.mainMenu)
+               break
+            case 'no':
+               ctx.scene.leave()
+               ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
+               break
+            case 'stepBack':
+               ctx.scene.enter('changeTest', [ctx.scene.step - 2])
+               break
+         }
+      }
+   }
+)
+
 module.exports = {
    addCoach: addC,
    deleteCoach: delC,
@@ -646,4 +751,5 @@ module.exports = {
    send: sendToCoach,
    addTest: addT,
    deleteTest: delT,
+   changeTest: changeT,
 }
