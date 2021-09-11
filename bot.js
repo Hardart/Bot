@@ -45,18 +45,7 @@ const addTest = scenes.addTest
 const deleteTest = scenes.deleteTest
 const changeTest = scenes.changeTest
 const session = new Session()
-const stage = new Stage(
-   addScene,
-   changeScene,
-   deleteScene,
-   addPadScene,
-   deletePadScene,
-   cleanPoints,
-   sendToCoach,
-   addTest,
-   deleteTest,
-   changeTest
-)
+const stage = new Stage(addScene, changeScene, deleteScene, addPadScene, deletePadScene, cleanPoints, sendToCoach, addTest, deleteTest, changeTest)
 
 bot.use(session.middleware())
 bot.use(stage.middleware())
@@ -154,11 +143,7 @@ bot.on(async (ctx) => {
             ctx.scene.enter('changeCoach', [1])
             break
          default:
-            ctx.reply(
-               `Вы нажали кнопку, но она пока еще не настроена`,
-               null,
-               kbd.mainMenu
-            )
+            ctx.reply(`Вы нажали кнопку, но она пока еще не настроена`, null, kbd.mainMenu)
       }
    }
    // УЧЕНИК

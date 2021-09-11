@@ -13,11 +13,7 @@ function collectButtons(collection, user, i) {
          })
          break
       case Test:
-         return Markup.button(
-            user.prefix + '_' + user.title,
-            'primary',
-            user._id
-         )
+         return Markup.button(user.prefix + '_' + user.title, 'primary', user._id)
          break
 
       default:
@@ -71,30 +67,25 @@ async function add(collection = 'coaches', ...args) {
    }
 }
 
-async function changeUser(collection, field, params) {
-   let obj = {
-      $set: params,
+async function change(collection, filter_obj, updateParams_obj) {
+   let params = {
+      $set: updateParams_obj,
    }
-   await collection.updateOne(field, obj)
+   await collection.updateOne(filter_obj, params)
 }
 
 function sendToCoach(coach, ren_login, table = 'padavans') {
-   connect.query(`UPDATE ${table} SET coach = ? WHERE ren_login = ?`, [
-      coach,
-      ren_login,
-   ])
+   connect.query(`UPDATE ${table} SET coach = ? WHERE ren_login = ?`, [coach, ren_login])
 }
 
 function reset(ren_login) {
-   connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [
-      ren_login,
-   ])
+   connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [ren_login])
 }
 
 module.exports = {
    selectAll: buttonsAndArray,
    add: add,
-   change: changeUser,
+   change: change,
    resetPoints: reset,
    sendToCoach: sendToCoach,
 }

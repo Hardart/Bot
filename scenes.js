@@ -3,7 +3,7 @@ const Markup = require('node-vk-bot-api/lib/markup')
 const { Coach, Padavan, Test } = require('./mongoModels')
 const kbd = require('./keyboards')
 const query = require('./query')
-const { newKeybord } = require('./functions')
+const { newKeybord, cancelBtn } = require('./functions')
 
 function isNumber(val) {
    return typeof val === 'number'
@@ -424,43 +424,42 @@ const clean = new Scene( // сбросить данные
 
 const sendToCoach = new Scene( // отправить к другому тренеру
    'sendToCoach',
-   (ctx) => {
-      query.selectAll('padavans').then(([data, users]) => {
-         if (users.length == 0) {
-            ctx.scene.leave()
-            ctx.reply('Список учеников пуст', null, kbd.padavanMenu)
-         } else {
-            let list = ''
-            users.forEach((user) => {
-               list += `${user.full_name} - ${user.ren_login}\n`
-            })
-            ctx.reply(
-               `Выберите ученика, которого необходимо отправить к другому тренеру\n${list}`,
-               null,
-               Markup.keyboard(newKeybord(data)).oneTime()
-            )
-            ctx.scene.next()
-         }
-      })
+   async (ctx) => {
+      const [buttons, padavans] = await query.selectAll(Padavan)
+      if (padavans.length == 0) {
+         ctx.reply(`Учеников нет...`, null, kbd.padavanMenu)
+         ctx.scene.leave()
+      } else {
+         let list = ''
+         padavans.forEach((user) => {
+            list += `${user.full_name} - ${user.ren_login}\n`
+         })
+         ctx.reply(
+            `Выберите ученика, которого необходимо отправить к другому тренеру\n${list}`,
+            null,
+            Markup.keyboard(newKeybord(buttons)).oneTime()
+         )
+         ctx.scene.next()
+      }
    },
-   (ctx) => {
-      if (ctx.message.payload) {
+   async (ctx) => {
+      if (!ctx.message.payload) {
+         cancelBtn(ctx, 'sendToCoach')
+      } else {
          ctx.scene.next()
          let payload = JSON.parse(ctx.message.payload)
          if (payload.button) {
             ctx.session.payload = payload.button
-         }
-         query.selectAll('coaches').then(([data]) => {
+            const [coaches] = await query.selectAll(Coach)
             ctx.reply(
                `Выберите к какому тренеру необходимо отправить`,
                null,
-               Markup.keyboard(newKeybord(data)).oneTime()
+               Markup.keyboard(newKeybord(coaches)).oneTime()
             )
-         })
-      } else {
-         ctx.scene.leave()
-         ctx.reply('Писать ничего не нужно, просто нажмите необходимую кнопку')
-         ctx.scene.enter('deletePadavan', 0)
+         } else {
+            ctx.scene.leave()
+            ctx.reply('Выбери действие', null, kbd.padavanMenu)
+         }
       }
    },
    (ctx) => {
@@ -548,7 +547,7 @@ const addT = new Scene( // добавить тест
       } else {
          let payload = JSON.parse(ctx.message.payload)
          ctx.scene.next()
-         ctx.session.points = payload.value
+         ctx.session.points = payload
          ctx.reply(
             `Тест:\n${ctx.session.prefix}_${ctx.session.title},\nБаллы за прохождение - ${ctx.session.points},\nдобавить тест в базу данных?`,
             null,
@@ -579,7 +578,7 @@ const addT = new Scene( // добавить тест
    }
 )
 
-const delT = new Scene( // удалить тренера
+const delT = new Scene( // удалить тест
    'deleteTest',
    async (ctx) => {
       ctx.scene.next()
@@ -630,7 +629,7 @@ const changeT = new Scene( // изменить тест
    async (ctx) => {
       ctx.scene.next()
       const [tests] = await query.selectAll(Test)
-      if (tests) {
+      if (tests.length == 0) {
          ctx.reply(`В списке тестов пусто...`, null, kbd.testMenu)
       } else {
          ctx.reply(
@@ -656,13 +655,7 @@ const changeT = new Scene( // изменить тест
             )
          }
       } else {
-         ctx.scene.leave()
-         ctx.reply(
-            'Писать не нужно, жми на кнопки что появляются ниже\nСейчас начнём сначала...'
-         )
-         setTimeout(() => {
-            ctx.scene.enter('changeTest', 0)
-         }, 4000)
+         cancelBtn(ctx, 'changeTest')
       }
    },
    (ctx) => {
