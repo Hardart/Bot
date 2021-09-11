@@ -44,8 +44,20 @@ const sendToCoach = scenes.send
 const addTest = scenes.addTest
 const deleteTest = scenes.deleteTest
 const changeTest = scenes.changeTest
+
 const session = new Session()
-const stage = new Stage(addScene, changeScene, deleteScene, addPadScene, deletePadScene, cleanPoints, sendToCoach, addTest, deleteTest, changeTest)
+const stage = new Stage(
+   addScene,
+   changeScene,
+   deleteScene,
+   addPadScene,
+   deletePadScene,
+   cleanPoints,
+   sendToCoach,
+   addTest,
+   deleteTest,
+   changeTest
+)
 
 bot.use(session.middleware())
 bot.use(stage.middleware())
@@ -78,9 +90,6 @@ bot.command('file', async (ctx) => {
    // console.log(user)
    await ctx.reply('ok')
 })
-// query.selectAll(Test).then((el) => console.log(el))
-
-// Test.find().then((el) => console.log(el))
 
 bot.on(async (ctx) => {
    const payload = ctx.message.payload
@@ -143,7 +152,11 @@ bot.on(async (ctx) => {
             ctx.scene.enter('changeCoach', [1])
             break
          default:
-            ctx.reply(`Вы нажали кнопку, но она пока еще не настроена`, null, kbd.mainMenu)
+            ctx.reply(
+               `Вы нажали кнопку, но она пока еще не настроена`,
+               null,
+               kbd.mainMenu
+            )
       }
    }
    // УЧЕНИК

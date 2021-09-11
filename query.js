@@ -13,7 +13,11 @@ function collectButtons(collection, user, i) {
          })
          break
       case Test:
-         return Markup.button(user.prefix + '_' + user.title, 'primary', user._id)
+         return Markup.button(
+            user.prefix + '_' + user.title,
+            'primary',
+            user._id
+         )
          break
 
       default:
@@ -21,8 +25,8 @@ function collectButtons(collection, user, i) {
    }
 }
 
-async function buttonsAndArray(collection) {
-   const users = await collection.find()
+async function buttonsAndArray(collection, params = { full_name: 1 }) {
+   const users = await collection.find().sort(params)
    let buttons = []
    let i = 0
    users.forEach((user) => {
@@ -67,19 +71,17 @@ async function add(collection = 'coaches', ...args) {
    }
 }
 
-async function change(collection, filter_obj, updateParams_obj) {
+async function change(collection, filter = Object, updateParams = Object) {
    let params = {
-      $set: updateParams_obj,
+      $set: updateParams,
    }
-   await collection.updateOne(filter_obj, params)
-}
-
-function sendToCoach(coach, ren_login, table = 'padavans') {
-   connect.query(`UPDATE ${table} SET coach = ? WHERE ren_login = ?`, [coach, ren_login])
+   await collection.updateOne(filter, params)
 }
 
 function reset(ren_login) {
-   connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [ren_login])
+   connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [
+      ren_login,
+   ])
 }
 
 module.exports = {
@@ -87,5 +89,4 @@ module.exports = {
    add: add,
    change: change,
    resetPoints: reset,
-   sendToCoach: sendToCoach,
 }

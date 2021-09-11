@@ -422,7 +422,7 @@ const clean = new Scene( // сбросить данные
    }
 )
 
-const sendToCoach = new Scene( // отправить к другому тренеру
+const sendToCoach = new Scene( // отправить к другому тренеру - DONE
    'sendToCoach',
    async (ctx) => {
       const [buttons, padavans] = await query.selectAll(Padavan)
@@ -449,12 +449,15 @@ const sendToCoach = new Scene( // отправить к другому трен�
          ctx.scene.next()
          let payload = JSON.parse(ctx.message.payload)
          if (payload.button) {
-            ctx.session.payload = payload.button
-            const [coaches] = await query.selectAll(Coach)
+            ctx.session.ren_login = payload.button
+            const [buttons, coaches] = await query.selectAll(Coach, {
+               coach_id: 1,
+            })
+            ctx.session.array = coaches
             ctx.reply(
                `Выберите к какому тренеру необходимо отправить`,
                null,
-               Markup.keyboard(newKeybord(coaches)).oneTime()
+               Markup.keyboard(newKeybord(buttons)).oneTime()
             )
          } else {
             ctx.scene.leave()
@@ -462,30 +465,35 @@ const sendToCoach = new Scene( // отправить к другому трен�
          }
       }
    },
-   (ctx) => {
-      if (ctx.message.payload) {
+   async (ctx) => {
+      if (!ctx.message.payload) {
+         mistake(ctx, 'sendToCoach')
+      } else if (JSON.parse(ctx.message.payload).value == 'cancel') {
+         ctx.scene.leave()
+         ctx.reply('Выбери действие', null, kbd.padavanMenu)
+      } else {
          ctx.scene.next()
          let coachId = JSON.parse(ctx.message.payload) - 1
-         query.selectAll('coaches').then(([_, users]) => {
-            ctx.reply(
-               `Ученику с логином ${ctx.session.payload}\nбудет назначен\nновый тренер - ${users[coachId].name}, вы уверены?`,
-               null,
-               kbd.confirmBtns
-            )
-         })
-      } else {
-         ctx.scene.leave()
-         ctx.reply('Писать ничего не нужно, просто нажмите необходимую кнопку')
-         ctx.scene.enter('deletePadavan', 0)
+         ctx.reply(
+            `Ученику с логином ${ctx.session.ren_login} будет назначен\nновый тренер - ${ctx.session.array[coachId].full_name}, вы уверены?`,
+            null,
+            kbd.confirmBtns
+         )
       }
    },
-   (ctx) => {
-      if (ctx.message.payload) {
+   async (ctx) => {
+      if (!ctx.message.payload) {
+         mistake(ctx, 'sendToCoach')
+      } else {
          ctx.scene.leave()
          let payload = JSON.parse(ctx.message.payload)
          switch (payload.value) {
             case 'yes':
-               query.sendToCoach(ctx.session.coach, ctx.session.payload)
+               await query.change(
+                  Padavan,
+                  { ren_login: ctx.session.ren_login },
+                  { coach_id: ctx.session.coach }
+               )
                ctx.reply(`Готово...`)
                setTimeout(() => {
                   ctx.reply('Вы вернулись в главное меню', null, kbd.mainMenu)
@@ -500,12 +508,6 @@ const sendToCoach = new Scene( // отправить к другому трен�
             default:
                break
          }
-      } else {
-         ctx.scene.leave()
-         ctx.reply(
-            'Необходимо нажимать кнопки, я не понимаю ввод с клавиатуры, начнем заново'
-         )
-         ctx.scene.enter('sendToCoach', 0)
       }
    }
 )
