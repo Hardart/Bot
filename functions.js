@@ -68,7 +68,7 @@ module.exports = {
          headers: headers,
       }).then((obj) => obj.json())
    },
-   cancelBtn: function (ctx, sceneName) {
+   mistake: function (ctx, sceneName) {
       ctx.scene.leave()
       ctx.reply(
          'Писать не нужно, жми на кнопки что появляются ниже\nСейчас начнём сначала...'

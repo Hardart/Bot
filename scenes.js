@@ -3,7 +3,7 @@ const Markup = require('node-vk-bot-api/lib/markup')
 const { Coach, Padavan, Test } = require('./mongoModels')
 const kbd = require('./keyboards')
 const query = require('./query')
-const { newKeybord, cancelBtn } = require('./functions')
+const { newKeybord, mistake } = require('./functions')
 
 function isNumber(val) {
    return typeof val === 'number'
@@ -444,7 +444,7 @@ const sendToCoach = new Scene( // отправить к другому трен�
    },
    async (ctx) => {
       if (!ctx.message.payload) {
-         cancelBtn(ctx, 'sendToCoach')
+         mistake(ctx, 'sendToCoach')
       } else {
          ctx.scene.next()
          let payload = JSON.parse(ctx.message.payload)
@@ -655,7 +655,7 @@ const changeT = new Scene( // изменить тест
             )
          }
       } else {
-         cancelBtn(ctx, 'changeTest')
+         mistake(ctx, 'changeTest')
       }
    },
    (ctx) => {
