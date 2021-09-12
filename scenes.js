@@ -13,11 +13,7 @@ const addC = new Scene( // добавить тренера
    'addCoach',
    (ctx) => {
       ctx.scene.next()
-      ctx.reply(
-         'Напиши полное фамилию и имя нового тренера',
-         null,
-         kbd.backAction
-      )
+      ctx.reply('Напиши полное фамилию и имя нового тренера', null, kbd.backAction)
    },
    (ctx) => {
       ctx.session.name = ctx.message.text
@@ -26,11 +22,7 @@ const addC = new Scene( // добавить тренера
          ctx.scene.leave()
       } else {
          ctx.scene.next()
-         ctx.reply(
-            'Введи ВК-ID тренера (он должен состоять только из цифр)',
-            null,
-            kbd.backAction
-         )
+         ctx.reply('Введи ВК-ID тренера (он должен состоять только из цифр)', null, kbd.backAction)
       }
    },
    (ctx) => {
@@ -80,11 +72,7 @@ const delC = new Scene( // удалить тренера
    async (ctx) => {
       ctx.scene.next()
       const [coaches] = await query.selectAll(Coach)
-      ctx.reply(
-         'Кого необходимо удалить?',
-         null,
-         Markup.keyboard(newKeybord(coaches)).oneTime()
-      )
+      ctx.reply('Кого необходимо удалить?', null, Markup.keyboard(newKeybord(coaches)).oneTime())
    },
    async (ctx) => {
       const payload = JSON.parse(ctx.message.payload)
@@ -126,11 +114,7 @@ const changeC = new Scene( // изменить тренера
    async (ctx) => {
       ctx.scene.next()
       const [coaches] = await query.selectAll(Coach)
-      ctx.reply(
-         'Кого необходимо изменить?',
-         null,
-         Markup.keyboard(newKeybord(coaches)).oneTime()
-      )
+      ctx.reply('Кого необходимо изменить?', null, Markup.keyboard(newKeybord(coaches)).oneTime())
    },
    (ctx) => {
       if (ctx.message.payload && isNumber(JSON.parse(ctx.message.payload))) {
@@ -151,11 +135,7 @@ const changeC = new Scene( // изменить тренера
       if (!ctx.message.payload) {
          ctx.session.name = ctx.message.text
       }
-      ctx.reply(
-         'Введи ВК-ID тренера (он должен состоять только из цифр)',
-         null,
-         kbd.backAction
-      )
+      ctx.reply('Введи ВК-ID тренера (он должен состоять только из цифр)', null, kbd.backAction)
    },
    (ctx) => {
       let str = ctx.message.text
@@ -224,11 +204,7 @@ const addP = new Scene( // добавить ученика
          ctx.scene.next()
          ctx.session.vkid = ctx.message.text
          const [coaches] = await query.selectAll(Coach)
-         ctx.reply(
-            'Назначить тренера',
-            null,
-            Markup.keyboard(newKeybord(coaches)).oneTime()
-         )
+         ctx.reply('Назначить тренера', null, Markup.keyboard(newKeybord(coaches)).oneTime())
       } else {
          ctx.reply('VK-ID должен состоять только из цифр')
          ctx.scene.enter('addPadavan', 2)
@@ -266,9 +242,7 @@ const addP = new Scene( // добавить ученика
                break
          }
       } else {
-         ctx.reply(
-            'Необходимо нажимать кнопки, я не понимаю ввод с клавиатуры, начнём заново'
-         )
+         ctx.reply('Необходимо нажимать кнопки, я не понимаю ввод с клавиатуры, начнём заново')
          ctx.scene.enter('addPadavan', 0)
       }
    }
@@ -381,11 +355,7 @@ const clean = new Scene( // сбросить данные
             )
          } else {
             ctx.scene.leave()
-            ctx.reply(
-               'Вы вернулись в настройки учеников',
-               null,
-               kbd.padavanMenu
-            )
+            ctx.reply('Вы вернулись в настройки учеников', null, kbd.padavanMenu)
          }
       } else {
          ctx.scene.leave()
@@ -516,30 +486,35 @@ const addT = new Scene( // добавить тест
    'addTest',
    (ctx) => {
       ctx.scene.next()
-      ctx.reply('Укажи префикс для теста (ИТ, ДТ...)', null, kbd.backAction)
+      ctx.reply('Укажи префикс для теста', null, kbd.prefix)
    },
    (ctx) => {
-      ctx.session.prefix = ctx.message.text
-      if (ctx.message.payload) {
-         ctx.reply('Выбери действие', null, kbd.testMenu)
-         ctx.scene.leave()
+      if (!ctx.message.payload) {
+         mistake(ctx, 'changeTest')
       } else {
-         ctx.scene.next()
-         ctx.reply('Напиши название теста', null, kbd.backAction)
+         let pld = JSON.parse(ctx.message.payload)
+         if (pld.value) {
+            ctx.scene.leave()
+            ctx.reply('Выбери действие', null, kbd.testMenu)
+         } else {
+            ctx.scene.next()
+            ctx.session.prefix = ctx.message.payload
+            ctx.reply('Напиши название теста', null, kbd.backAction)
+         }
       }
    },
    (ctx) => {
-      ctx.session.title = ctx.message.text
-      if (ctx.message.payload) {
-         ctx.reply('Выбери действие', null, kbd.testMenu)
-         ctx.scene.leave()
-      } else {
+      if (!ctx.message.payload) {
          ctx.scene.next()
+         ctx.session.title = ctx.message.text
          ctx.reply(
             'Укажи сколько баллов получит ученик за прохождение данного теста',
             null,
             kbd.points
          )
+      } else {
+         ctx.reply('Выбери действие', null, kbd.testMenu)
+         ctx.scene.leave()
       }
    },
    (ctx) => {
@@ -562,12 +537,7 @@ const addT = new Scene( // добавить тест
       const payload = JSON.parse(ctx.message.payload)
       switch (payload.value) {
          case 'yes':
-            query.add(
-               'tests',
-               ctx.session.title,
-               ctx.session.prefix,
-               ctx.session.points
-            )
+            query.add('tests', ctx.session.title, ctx.session.prefix, ctx.session.points)
             ctx.reply('Готово!', null, kbd.mainMenu)
             break
          case 'no':
@@ -585,11 +555,7 @@ const delT = new Scene( // удалить тест
    async (ctx) => {
       ctx.scene.next()
       const [tests] = await query.selectAll(Test)
-      ctx.reply(
-         'Кого необходимо удалить?',
-         null,
-         Markup.keyboard(newKeybord(tests)).oneTime()
-      )
+      ctx.reply('Кого необходимо удалить?', null, Markup.keyboard(newKeybord(tests)).oneTime())
    },
    async (ctx) => {
       const payload = JSON.parse(ctx.message.payload)
@@ -650,11 +616,7 @@ const changeT = new Scene( // изменить тест
             ctx.scene.next()
             ctx.session.id = JSON.parse(ctx.message.payload)
             ctx.session.oldName = ctx.message.text
-            ctx.reply(
-               'Напиши новый префикс теста (ИТ, ДТ...)',
-               null,
-               kbd.backAction
-            )
+            ctx.reply('Напиши новый префикс теста (ИТ, ДТ...)', null, kbd.backAction)
          }
       } else {
          mistake(ctx, 'changeTest')
@@ -681,11 +643,7 @@ const changeT = new Scene( // изменить тест
          ctx.scene.leave()
       } else {
          ctx.scene.next()
-         ctx.reply(
-            `Укажи сколько баллов будем начислять за новый тест`,
-            null,
-            kbd.points
-         )
+         ctx.reply(`Укажи сколько баллов будем начислять за новый тест`, null, kbd.points)
       }
    },
    (ctx) => {

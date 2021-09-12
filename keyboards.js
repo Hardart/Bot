@@ -1,21 +1,9 @@
 const Markup = require('node-vk-bot-api/lib/markup')
 
 const mainMenu = Markup.keyboard([
-   [
-      Markup.button('Настройка учеников', 'secondary', {
-         value: 'padavan_config',
-      }),
-   ],
-   [
-      Markup.button('Настройки тренеров', 'secondary', {
-         value: 'coach_config',
-      }),
-   ],
-   [
-      Markup.button('Настройки тестов', 'secondary', {
-         value: 'test_config',
-      }),
-   ],
+   [Markup.button('Настройка учеников', 'secondary', { value: 'padavan_config' })],
+   [Markup.button('Настройки тренеров', 'secondary', { value: 'coach_config' })],
+   [Markup.button('Настройки тестов', 'secondary', { value: 'test_config' })],
 ]).oneTime()
 
 const coachMenu = Markup.keyboard([
@@ -28,11 +16,7 @@ const coachMenu = Markup.keyboard([
 const padavanMenu = Markup.keyboard([
    [Markup.button('Сбросить данные', 'positive', { value: 'clear_data' })],
    [Markup.button('Назначить тренера', 'primary', { value: 'send_to_coach' })],
-   [
-      Markup.button('Добавить ученика (временно)', 'primary', {
-         value: 'add_padavan',
-      }),
-   ],
+   [Markup.button('Добавить ученика (временно)', 'primary', { value: 'add_padavan' })],
    [Markup.button('Удалить ученика', 'secondary', { value: 'delete_padavan' })],
    [Markup.button('Назад', 'negative', { value: 'main_menu' })],
 ]).oneTime()
@@ -61,6 +45,11 @@ const points = Markup.keyboard([
    [Markup.button('Назад', 'negative', { value: 'stepBack' })],
 ]).oneTime()
 
+const prefix = Markup.keyboard([
+   [Markup.button('ИТ', 'primary', 'it'), Markup.button('ДТ', 'primary', 'dt')],
+   [Markup.button('Назад', 'negative', { value: 'stepBack' })],
+]).oneTime()
+
 module.exports = {
    mainMenu: mainMenu,
    coachMenu: coachMenu,
@@ -68,7 +57,10 @@ module.exports = {
    testMenu: testMenu,
    confirmBtns: confirmBtns,
    points: points,
+   prefix: prefix,
    backAction: Markup.keyboard([
-      Markup.button('Отменить', 'negative', { value: 'cancel' }),
+      Markup.button('Отменить', 'negative', {
+         value: 'cancel',
+      }),
    ]).oneTime(),
 }
