@@ -7,6 +7,10 @@ const Padavan = mongoose.Schema({
    ren_pass: String,
    w_code: String,
    coach_id: Number,
+   points: {
+      type: Number,
+      default: 0,
+   },
 })
 
 const Reg_data = mongoose.Schema({

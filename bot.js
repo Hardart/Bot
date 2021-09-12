@@ -3,18 +3,19 @@ const fs = require('fs')
 const path = require('path')
 const kbd = require('./keyboards')
 const { newKeybord, photo } = require('./functions')
-const scenes = require('./scenes')
+const testScenes = require('./scenes/testScene')
+const coachScene = require('./scenes/coachScene')
+const padavanScene = require('./scenes/padavansScene')
 const { Padavan, Test, Coach } = require('./mongoModels')
 const query = require('./query')
-const mongoose = require('mongoose')
 const express = require('express')
 const VkBot = require('node-vk-bot-api')
 const api = require('node-vk-bot-api/lib/api')
+const mongoose = require('mongoose')
 const Session = require('node-vk-bot-api/lib/session')
 const Stage = require('node-vk-bot-api/lib/stage')
 const usersRoute = require('./routes/users')
 const pugRoute = require('./routes/pug')
-const script = require('./routes/pug')
 const TOKEN = process.env.VK_TOKEN
 const app = express()
 const PORT = process.env.PORT || 80
@@ -34,16 +35,16 @@ app.use(express.static(path.join(__dirname, 'assets')))
 app.use(express.urlencoded({ extended: true }))
 
 // --------- блок сценариев -------------
-const addScene = scenes.addCoach
-const changeScene = scenes.changeCoach
-const deleteScene = scenes.deleteCoach
-const addPadScene = scenes.addPadavan
-const deletePadScene = scenes.deletePadavan
-const cleanPoints = scenes.cleanPoints
-const sendToCoach = scenes.send
-const addTest = scenes.addTest
-const deleteTest = scenes.deleteTest
-const changeTest = scenes.changeTest
+const addScene = coachScene.addCoach
+const changeScene = coachScene.changeCoach
+const deleteScene = coachScene.deleteCoach
+const addPadScene = padavanScene.addPadavan
+const deletePadScene = padavanScene.deletePadavan
+const cleanPoints = padavanScene.cleanPoints
+const sendToCoach = padavanScene.send
+const addTest = testScenes.addTest
+const deleteTest = testScenes.deleteTest
+const changeTest = testScenes.changeTest
 
 const session = new Session()
 const stage = new Stage(
@@ -93,16 +94,30 @@ bot.command('file', async (ctx) => {
 
 bot.on(async (ctx) => {
    const payload = ctx.message.payload
-   const userMsg = ctx.message.text
+   const msg = ctx.message.text
    const userID = ctx.message.from_id
    const user = await api('users.get', {
       user_ids: userID,
       access_token: TOKEN,
    }).then((data) => data.response[0])
+
    // КНОПКА
    if (payload) {
       const btn = JSON.parse(payload)
       switch (btn.value) {
+         case 'score_table':
+            const padavans = await Padavan.find()
+            ctx.reply(padavans[0].points, null, kbd.menu)
+            break
+         case 'bonus':
+            ctx.reply('Бонус', null, kbd.menu)
+            break
+         case 'clean_list':
+            const coach = await Coach.findOne({ vk_id: userID })
+            await Padavan.deleteMany({ coach_id: coach.coach_id })
+            ctx.reply('Список учеников очищен', null, kbd.menu)
+            break
+
          case 'main_menu':
             ctx.reply(`Вы вернулись в главное меню...`, null, kbd.mainMenu)
             break
@@ -148,20 +163,23 @@ bot.on(async (ctx) => {
             ctx.scene.enter('deleteTest')
             break
 
-         case 'stepBack':
-            ctx.scene.enter('changeCoach', [1])
-            break
          default:
-            ctx.reply(
-               `Вы нажали кнопку, но она пока еще не настроена`,
-               null,
-               kbd.mainMenu
-            )
+            ctx.reply(`Вы нажали кнопку, но она пока еще не настроена`, null, kbd.mainMenu)
       }
    }
-   // УЧЕНИК
+   // ЧЕЛОВЕК
    else {
-      ctx.reply('Без кода доступа ты не сможешь настроить мои программы')
+      const coachVK = await Coach.findOne({ vk_id: userID })
+      if (coachVK) {
+         ctx.reply('Ты в системе', null, kbd.menu)
+      } else {
+         const userVK = await Padavan.findOne({ vk_id: userID })
+         if (userVK) {
+            ctx.reply('Без кода доступа ты не сможешь настроить мои программы')
+         } else {
+            ctx.reply('Ты кто вообще?')
+         }
+      }
    }
 })
 

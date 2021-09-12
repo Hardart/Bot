@@ -1,9 +1,22 @@
 const Markup = require('node-vk-bot-api/lib/markup')
 
+const back = Markup.button('Назад', 'negative', {
+   value: 'stepBack',
+})
+const cancel = Markup.button('Отменить', 'negative', {
+   value: 'cancel',
+})
+
 const mainMenu = Markup.keyboard([
    [Markup.button('Настройка учеников', 'secondary', { value: 'padavan_config' })],
    [Markup.button('Настройки тренеров', 'secondary', { value: 'coach_config' })],
    [Markup.button('Настройки тестов', 'secondary', { value: 'test_config' })],
+]).oneTime()
+
+const menu = Markup.keyboard([
+   [Markup.button('Турнирная таблица', 'primary', { value: 'score_table' })],
+   [Markup.button('Бонус', 'secondary', { value: 'bonus' })],
+   [Markup.button('Очистить список учеников', 'secondary', { value: 'clean_list' })],
 ]).oneTime()
 
 const coachMenu = Markup.keyboard([
@@ -29,10 +42,9 @@ const testMenu = Markup.keyboard([
 ]).oneTime()
 
 const confirmBtns = Markup.keyboard([
-   [Markup.button('Назад', 'negative', { value: 'stepBack' })],
    [
       Markup.button('Да', 'positive', { value: 'yes' }),
-      Markup.button('Отмена', 'secondary', { value: 'no' }),
+      Markup.button('Нет', 'negative', { value: 'no' }),
    ],
 ]).oneTime()
 
@@ -42,25 +54,23 @@ const points = Markup.keyboard([
       Markup.button('4', 'primary', 4),
       Markup.button('5', 'primary', 5),
    ],
-   [Markup.button('Назад', 'negative', { value: 'stepBack' })],
+   [back],
 ]).oneTime()
 
 const prefix = Markup.keyboard([
    [Markup.button('ИТ', 'primary', 'it'), Markup.button('ДТ', 'primary', 'dt')],
-   [Markup.button('Назад', 'negative', { value: 'stepBack' })],
+   [back],
 ]).oneTime()
 
 module.exports = {
    mainMenu: mainMenu,
+   menu: menu,
    coachMenu: coachMenu,
    padavanMenu: padavanMenu,
    testMenu: testMenu,
    confirmBtns: confirmBtns,
    points: points,
    prefix: prefix,
-   backAction: Markup.keyboard([
-      Markup.button('Отменить', 'negative', {
-         value: 'cancel',
-      }),
-   ]).oneTime(),
+   cancel: Markup.keyboard([cancel]).oneTime(),
+   backAction: Markup.keyboard([back]).oneTime(),
 }
