@@ -33,7 +33,7 @@ module.exports = {
          bot.sendMessage(userID, mess, attach)
       })
    },
-   newKeybord: function (users) {
+   newKeybord: function (users, btnText = 'Отменить', payload = 'cancel') {
       buttons = []
       let summ = users.length
       let columns = 2
@@ -54,7 +54,7 @@ module.exports = {
             buttons.push(arrayOfButtons)
          }
       }
-      let cancel = Markup.button('Отменить', 'negative', { value: 'cancel' })
+      let cancel = Markup.button(btnText, 'negative', { value: payload })
       buttons.push([cancel])
       return buttons
    },
@@ -70,11 +70,16 @@ module.exports = {
    },
    mistake: function (ctx, sceneName) {
       ctx.scene.leave()
-      ctx.reply(
-         'Писать не нужно, жми на кнопки что появляются ниже\nСейчас начнём сначала...'
-      )
+      ctx.reply('Писать не нужно, жми на кнопки что появляются ниже\nСейчас начнём сначала...')
       setTimeout(() => {
          ctx.scene.enter(sceneName, 0)
+      }, 4000)
+   },
+   fromBegin: function (ctx, sceneName) {
+      ctx.scene.leave()
+      ctx.reply('Писать не нужно, жми на кнопки что появляются ниже\nСейчас начнём сначала...')
+      setTimeout(() => {
+         ctx.reply('Отправь мне свой welcome-код ещё раз')
       }, 4000)
    },
 }

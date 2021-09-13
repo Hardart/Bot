@@ -4,7 +4,7 @@ const { Coach, Padavan, RegData } = require('../mongoModels')
 const kbd = require('../keyboards')
 const query = require('../query')
 const api = require('node-vk-bot-api/lib/api')
-const { newKeybord, mistake } = require('../functions')
+const { newKeybord, mistake, fromBegin } = require('../functions')
 
 const inviting = new Scene( // удалить ученика
    'accept_invite',
@@ -25,29 +25,37 @@ const inviting = new Scene( // удалить ученика
       if (ctx.session.data) {
          ctx.scene.next()
          const [buttons] = await query.selectAll(Coach)
-         ctx.reply(msg, null, Markup.keyboard(newKeybord(buttons)).oneTime())
+         ctx.reply(
+            msg,
+            null,
+            Markup.keyboard(newKeybord(buttons, 'Не знаю кто мой тренер...', 'who')).oneTime()
+         )
       } else {
-         ctx.reply(`No`, kbd.menu)
+         ctx.reply(`Нет доступа ни к одной программе`, kbd.menu)
       }
    },
    async (ctx) => {
       if (ctx.message.payload) {
          ctx.scene.next()
          let payload = JSON.parse(ctx.message.payload)
-         ctx.session.coachId = payload
-         const coach = await Coach.findOne({ coach_id: payload })
-         ctx.reply(`Теперь ${coach.full_name} твой тренер\nВы уверены?`, null, kbd.confirmBtns)
+         if (payload.value == 'who') {
+            ctx.reply('Не знаю')
+            fromBegin(ctx, 'accept_invite')
+         } else {
+            ctx.session.coachId = payload
+            const coach = await Coach.findOne({ coach_id: payload })
+            ctx.reply(`Теперь ${coach.full_name} твой тренер\nВы уверены?`, null, kbd.confirmBtns)
+         }
       } else {
-         mistake(ctx, 'accept_invite')
+         fromBegin(ctx, 'accept_invite')
       }
    },
    async (ctx) => {
-      ctx.scene.leave()
       if (ctx.message.payload) {
+         ctx.scene.next()
          let payload = JSON.parse(ctx.message.payload)
          switch (payload.value) {
             case 'yes':
-               await Padavan.deleteOne({ ren_login: ctx.session.ren_login })
                await query.add(
                   'padavans',
                   ctx.session.user.id,
@@ -58,7 +66,9 @@ const inviting = new Scene( // удалить ученика
                   ctx.session.coachId
                )
                ctx.reply(
-                  'Отлично!\n\nВ процессе тебе предстоит пролететь на ракете планеты:\n\nпланета - ПРОДУКТЫ. Здесь ты узнаешь те продукты, которые продаются в нашем космическом пространстве и их основные параметры.\n\nпланета - КОММУНИКАТИВ. На этой горячей планете тебя ждут основы общения с клиентом и то, что нужно использовать для наиболее эффективной продажи.\n\nпланета - ПРОГРАММЫ. В гостях у этой планеты ты узнаешь на какую кнопку нужно нажать, чтобы узнать решение банка и записать клиента в офис.\n\nКак твой настрой?\nГотов к незабываемым приключениям?'
+                  'Отлично!\n\nВ процессе тебе предстоит пролететь на ракете планеты:\n\nпланета - ПРОДУКТЫ. Здесь ты узнаешь те продукты, которые продаются в нашем космическом пространстве и их основные параметры.\n\nпланета - КОММУНИКАТИВ. На этой горячей планете тебя ждут основы общения с клиентом и то, что нужно использовать для наиболее эффективной продажи.\n\nпланета - ПРОГРАММЫ. В гостях у этой планеты ты узнаешь на какую кнопку нужно нажать, чтобы узнать решение банка и записать клиента в офис.\n\nКак твой настрой?\nГотов к незабываемым приключениям?',
+                  null,
+                  kbd.confirmBtns
                )
                break
             case 'no':
@@ -66,7 +76,39 @@ const inviting = new Scene( // удалить ученика
                break
          }
       } else {
-         mistake(ctx, 'accept_invite')
+         fromBegin(ctx, 'accept_invite')
+      }
+   },
+   async (ctx) => {
+      if (ctx.message.payload) {
+         let payload = JSON.parse(ctx.message.payload)
+         switch (payload.value) {
+            case 'yes':
+               // await Padavan.deleteOne({ ren_login: ctx.session.ren_login })
+               ctx.scene.leave()
+               await ctx.reply('Сейчас сгенерирую для тебя учётную запись и добавлю в свою команду')
+
+               setTimeout(async () => {
+                  await ctx.reply(
+                     `========================\r\nЛОГИН: ${ctx.session.data.ren_login}\r\nПАРОЛЬ: ${ctx.session.data.ren_pass}\r\n========================\n\n\n`
+                  )
+                  await ctx.reply('http://webtutor.rencredit.ru')
+               }, 3000)
+               setTimeout(async () => {
+                  await ctx.reply(
+                     'Если что, я всегда рядом и жду твоей команды 🤖',
+                     null,
+                     kbd.padavanMainMenu
+                  )
+               }, 5000)
+               break
+            case 'no':
+               ctx.scene.enter('accept_invite')
+               break
+         }
+      } else {
+         await Padavan.deleteOne({ vk_id: ctx.session.user.id })
+         fromBegin(ctx, 'accept_invite')
       }
    }
 )

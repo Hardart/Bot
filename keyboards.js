@@ -3,6 +3,7 @@ const Markup = require('node-vk-bot-api/lib/markup')
 const back = Markup.button('Назад', 'negative', {
    value: 'stepBack',
 })
+
 const cancel = Markup.button('Отменить', 'negative', {
    value: 'cancel',
 })
@@ -32,6 +33,11 @@ const padavanMenu = Markup.keyboard([
    [Markup.button('Добавить ученика (временно)', 'primary', { value: 'add_padavan' })],
    [Markup.button('Удалить ученика', 'secondary', { value: 'delete_padavan' })],
    [Markup.button('Назад', 'negative', { value: 'main_menu' })],
+]).oneTime()
+
+const padavanMainMenu = Markup.keyboard([
+   [Markup.button('Турнирная таблица', 'primary', { value: 'standings' })],
+   [Markup.button('Задать вопрос тренеру', 'secondary', { value: 'send_question' })],
 ]).oneTime()
 
 const testMenu = Markup.keyboard([
@@ -67,6 +73,7 @@ module.exports = {
    menu: menu,
    coachMenu: coachMenu,
    padavanMenu: padavanMenu,
+   padavanMainMenu: padavanMainMenu,
    testMenu: testMenu,
    confirmBtns: confirmBtns,
    points: points,

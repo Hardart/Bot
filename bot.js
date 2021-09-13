@@ -177,7 +177,11 @@ bot.on(async (ctx) => {
       else {
          const userVK = await Padavan.findOne({ vk_id: userID })
          if (userVK) {
-            ctx.reply('Без кода доступа ты не сможешь настроить мои программы')
+            ctx.reply(
+               'Тебе не зачем просто так тратить свое время...\nвыбирай и жми на кнопки',
+               null,
+               kbd.padavanMainMenu
+            )
          } else {
             ctx.scene.enter('accept_invite')
          }
