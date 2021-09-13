@@ -6,6 +6,7 @@ const { newKeybord, photo } = require('./functions')
 const testScenes = require('./scenes/testScene')
 const coachScene = require('./scenes/coachScene')
 const padavanScene = require('./scenes/padavansScene')
+const inviteScene = require('./scenes/inviteScene')
 const { Padavan, Test, Coach } = require('./mongoModels')
 const query = require('./query')
 const express = require('express')
@@ -45,6 +46,7 @@ const sendToCoach = padavanScene.send
 const addTest = testScenes.addTest
 const deleteTest = testScenes.deleteTest
 const changeTest = testScenes.changeTest
+const acceptInvite = inviteScene.inviteCodeScene
 
 const session = new Session()
 const stage = new Stage(
@@ -57,7 +59,8 @@ const stage = new Stage(
    sendToCoach,
    addTest,
    deleteTest,
-   changeTest
+   changeTest,
+   acceptInvite
 )
 
 bot.use(session.middleware())
@@ -96,10 +99,6 @@ bot.on(async (ctx) => {
    const payload = ctx.message.payload
    const msg = ctx.message.text
    const userID = ctx.message.from_id
-   const user = await api('users.get', {
-      user_ids: userID,
-      access_token: TOKEN,
-   }).then((data) => data.response[0])
 
    // КНОПКА
    if (payload) {
@@ -170,14 +169,17 @@ bot.on(async (ctx) => {
    // ЧЕЛОВЕК
    else {
       const coachVK = await Coach.findOne({ vk_id: userID })
+      // ТРЕНЕР
       if (coachVK) {
          ctx.reply('Ты в системе', null, kbd.menu)
-      } else {
+      }
+      // УЧЕНИК
+      else {
          const userVK = await Padavan.findOne({ vk_id: userID })
          if (userVK) {
             ctx.reply('Без кода доступа ты не сможешь настроить мои программы')
          } else {
-            ctx.reply('Ты кто вообще?')
+            ctx.scene.enter('accept_invite')
          }
       }
    }

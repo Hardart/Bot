@@ -13,11 +13,7 @@ function collectButtons(collection, user, i) {
          })
          break
       case Test:
-         return Markup.button(
-            user.prefix + '_' + user.title,
-            'primary',
-            user._id
-         )
+         return Markup.button(user.prefix + '_' + user.title, 'primary', user._id)
          break
 
       default:
@@ -52,9 +48,9 @@ async function add(collection = 'coaches', ...args) {
             vk_id: args[0],
             full_name: args[1],
             ren_login: args[2],
-            ren_pass: 'Pass',
-            w_code: 'Code',
-            coach_id: args[3],
+            ren_pass: args[3],
+            w_code: args[4],
+            coach_id: args[5],
          })
          await padavan.save()
          break
@@ -79,9 +75,7 @@ async function change(collection, filter = Object, updateParams = Object) {
 }
 
 function reset(ren_login) {
-   connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [
-      ren_login,
-   ])
+   connect.query(`UPDATE padavans SET test_points = 0 WHERE ren_login = ?`, [ren_login])
 }
 
 module.exports = {
