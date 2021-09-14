@@ -55,6 +55,8 @@ const addP = new Scene( // добавить ученика
                   ctx.session.vkid,
                   ctx.session.name,
                   ctx.session.login,
+                  '==',
+                  '==',
                   ctx.session.coach
                )
                ctx.reply('Готово!', null, kbd.mainMenu)

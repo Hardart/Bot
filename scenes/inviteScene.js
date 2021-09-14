@@ -4,7 +4,7 @@ const { Coach, Padavan, RegData } = require('../mongoModels')
 const kbd = require('../keyboards')
 const query = require('../query')
 const api = require('node-vk-bot-api/lib/api')
-const { newKeybord, mistake, fromBegin } = require('../functions')
+const { newKeybord, fromBegin } = require('../functions')
 
 const inviting = new Scene( // удалить ученика
    'accept_invite',
@@ -31,7 +31,7 @@ const inviting = new Scene( // удалить ученика
             Markup.keyboard(newKeybord(buttons, 'Не знаю кто мой тренер...', 'who')).oneTime()
          )
       } else {
-         ctx.reply(`Нет доступа ни к одной программе`, kbd.menu)
+         ctx.reply(`Нет доступа ни к одной программе`)
       }
    },
    async (ctx) => {

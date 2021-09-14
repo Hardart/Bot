@@ -2,7 +2,7 @@ require('dotenv/config')
 const fs = require('fs')
 const path = require('path')
 const kbd = require('./keyboards')
-const { newKeybord, photo } = require('./functions')
+const { newKeybord, photo, shuffle } = require('./functions')
 const testScenes = require('./scenes/testScene')
 const coachScene = require('./scenes/coachScene')
 const padavanScene = require('./scenes/padavansScene')
@@ -105,8 +105,13 @@ bot.on(async (ctx) => {
       const btn = JSON.parse(payload)
       switch (btn.value) {
          case 'score_table':
-            const padavans = await Padavan.find()
-            ctx.reply(padavans[0].points, null, kbd.menu)
+            let thisUser = await Padavan.findOne({ vk_id: userID })
+            let padavans = await Padavan.find({ coach_id: thisUser.coach_id })
+            let list = '=================\n'
+            padavans.forEach((pad) => {
+               list += `${pad.full_name} - ${pad.points}\n`
+            })
+            ctx.reply(list, null, kbd.padavanMainMenu)
             break
          case 'bonus':
             ctx.reply('Бонус', null, kbd.menu)
@@ -115,6 +120,12 @@ bot.on(async (ctx) => {
             const coach = await Coach.findOne({ vk_id: userID })
             await Padavan.deleteMany({ coach_id: coach.coach_id })
             ctx.reply('Список учеников очищен', null, kbd.menu)
+            break
+
+         case 'send_question':
+            // thisUser = await Coach.findOne({ vk_id: userID })
+            // await Padavan.deleteMany({ coach_id: coach.coach_id })
+            ctx.reply('Вопрос отправлен, жди ответ!')
             break
 
          case 'main_menu':

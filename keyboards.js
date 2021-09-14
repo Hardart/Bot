@@ -36,7 +36,7 @@ const padavanMenu = Markup.keyboard([
 ]).oneTime()
 
 const padavanMainMenu = Markup.keyboard([
-   [Markup.button('Турнирная таблица', 'primary', { value: 'standings' })],
+   [Markup.button('Турнирная таблица', 'primary', { value: 'score_table' })],
    [Markup.button('Задать вопрос тренеру', 'secondary', { value: 'send_question' })],
 ]).oneTime()
 
