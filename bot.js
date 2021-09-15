@@ -24,6 +24,7 @@ const bot = new VkBot({
    token: TOKEN,
    confirmation: process.env.VK_CONFIRM,
 })
+// require('events').defaultMaxListeners = 15
 
 // photo('Insta.png', process.env.VK_ID, TOKEN, bot) // отправка фото
 
@@ -47,6 +48,7 @@ const addTest = testScenes.addTest
 const deleteTest = testScenes.deleteTest
 const changeTest = testScenes.changeTest
 const acceptInvite = inviteScene.inviteCodeScene
+const question = inviteScene.questionScene
 
 const session = new Session()
 const stage = new Stage(
@@ -60,6 +62,7 @@ const stage = new Stage(
    addTest,
    deleteTest,
    changeTest,
+   question,
    acceptInvite
 )
 
@@ -139,9 +142,7 @@ bot.on(async (ctx) => {
             break
 
          case 'send_question':
-            // thisUser = await Coach.findOne({ vk_id: userID })
-            // await Padavan.deleteMany({ coach_id: coach.coach_id })
-            ctx.reply('Вопрос отправлен, жди ответ!')
+            ctx.scene.enter('quest')
             break
 
          case 'main_menu':

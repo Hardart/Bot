@@ -6,7 +6,7 @@ const query = require('../query')
 const api = require('node-vk-bot-api/lib/api')
 const { newKeybord, fromBegin } = require('../functions')
 
-const inviting = new Scene( // удалить ученика
+const inviting = new Scene( // проверка кода
    'accept_invite',
    async (ctx) => {
       if (!ctx.message.payload) {
@@ -128,6 +128,32 @@ const inviting = new Scene( // удалить ученика
    }
 )
 
+const question = new Scene('quest', async (ctx) => {
+   // вопрос тренеру
+   if (ctx.message.payload) {
+      const pad = await Padavan.findOne({ vk_id: ctx.message.from_id })
+      const coach = await Coach.findOne({ coach_id: pad.coach_id })
+      console.log(coach)
+      // ctx.session.user = pad
+   }
+   const msg = ctx.message.payload
+      ? `Хорошо, ты можешь изменить свой выбор`
+      : `Дорогой друг, мы рады приветствовать тебя на дистанционно-очном Базовом обучении по Продажам.\nМеня зовут Робби. Я буду тебя сопровождать на протяжении всего космического путешествия по обучению.\n\nУточни, пожалуйста, кто твой тренер?`
+
+   if (ctx.session.data) {
+      ctx.scene.next()
+      const [buttons] = await query.selectAll(Coach)
+      ctx.reply(
+         msg,
+         null,
+         Markup.keyboard(newKeybord(buttons, 'Не знаю кто мой тренер...', 'who')).oneTime()
+      )
+   } else {
+      ctx.reply(`Нет доступа ни к одной программе`)
+   }
+})
+
 module.exports = {
    inviteCodeScene: inviting,
+   questionScene: question,
 }
