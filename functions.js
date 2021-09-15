@@ -58,10 +58,7 @@ module.exports = {
       buttons.push([cancel])
       return buttons
    },
-   sendRequest: function (method, url, body = null) {
-      const headers = {
-         'Content-Type': 'application/json',
-      }
+   sendRequest: function (method, url, body = null, headers = Object) {
       method == 'get' ? (body = null) : body
       return fetch(url, {
          method: method,
