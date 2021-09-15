@@ -100,4 +100,10 @@ module.exports = {
       }
       return words[2]
    },
+   addZero: function (i) {
+      if (i < 10) {
+         i = '0' + i
+      }
+      return i
+   },
 }

@@ -1,7 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const fetch = require('node-fetch')
-const { Padavan } = require('../mongoModels')
 const { sendRequest, addZero } = require('../functions')
 router.use(express.json())
 router.use(express.urlencoded({ extended: true }))
@@ -58,10 +56,11 @@ var dates = {
 
 router.get('/', async (req, res) => {
    let url = 'https://sportscore1.p.rapidapi.com/seasons/8958/events'
-   let body = {
-      page: '1',
+   let headers = {
+      'x-rapidapi-host': 'sportscore1.p.rapidapi.com',
+      'x-rapidapi-key': '634f40ab1dmshc056a9419dd46d7p19b876jsn3a80214a1344',
    }
-   sendRequest('get', url).then((res) => {
+   sendRequest('get', url, null, headers).then((res) => {
       for (let i = 0; i < res.data.length; i++) {
          let dateOfMatch = new Date(Date.parse(res.data[i].start_at))
          let dateNow = new Date()
@@ -85,8 +84,6 @@ router.get('/', async (req, res) => {
          }
       }
    })
-
-   // res.redirect(url)
 })
 
 router.post('/', async (req, res) => {
