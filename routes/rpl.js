@@ -61,8 +61,29 @@ router.get('/', async (req, res) => {
    let body = {
       page: '1',
    }
-   sendRequest('get', url, body).then((res) => {
-      console.log('yes')
+   sendRequest('get', url).then((res) => {
+      for (let i = 0; i < res.data.length; i++) {
+         let dateOfMatch = new Date(Date.parse(res.data[i].start_at))
+         let dateNow = new Date()
+         let start = `${dateNow.getFullYear()}/${dateNow.getMonth() + 1}/${dateNow.getDate()}`
+         let end = `${dateNow.getFullYear()}/${dateNow.getMonth() + 1}/${dateNow.getDate() + 5}`
+         const gameHour = dateOfMatch.getHours() + 3
+         const gameMinutes = addZero(dateOfMatch.getMinutes())
+         const gameDay = addZero(dateOfMatch.getDate())
+         const gameMonth = addZero(dateOfMatch.getMonth())
+         const gameYear = dateOfMatch.getFullYear()
+         const homeTeam = res.data[i].home_team.name_translations.ru
+         const awayTeam = res.data[i].away_team.name_translations.ru
+
+         if (dates.inRange(dateOfMatch, start, end)) {
+            console.log(`${gameDay}.${gameMonth}.${gameYear}`)
+            console.log('=====================')
+            console.log(homeTeam + ' - ' + awayTeam)
+            console.log('Начало в ' + gameHour + ':' + gameMinutes)
+
+            console.log()
+         }
+      }
    })
 
    // res.redirect(url)

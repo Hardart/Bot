@@ -62,6 +62,7 @@ module.exports = {
       const headers = {
          'Content-Type': 'application/json',
       }
+      method == 'get' ? (body = null) : body
       return fetch(url, {
          method: method,
          body: body ? JSON.stringify(body) : null,
