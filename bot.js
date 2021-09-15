@@ -2,7 +2,7 @@ require('dotenv/config')
 const fs = require('fs')
 const path = require('path')
 const kbd = require('./keyboards')
-const { newKeybord, photo, shuffle } = require('./functions')
+const { newKeybord, photo, shuffle, wordEndings } = require('./functions')
 const testScenes = require('./scenes/testScene')
 const coachScene = require('./scenes/coachScene')
 const padavanScene = require('./scenes/padavansScene')
@@ -97,20 +97,33 @@ bot.command('file', async (ctx) => {
 
 bot.on(async (ctx) => {
    const payload = ctx.message.payload
+   const groupId = ctx.groupId
    const msg = ctx.message.text
    const userID = ctx.message.from_id
-
+   const msgId = ctx.message.id
    // КНОПКА
    if (payload) {
       const btn = JSON.parse(payload)
       switch (btn.value) {
          case 'score_table':
             let thisUser = await Padavan.findOne({ vk_id: userID })
-            let padavans = await Padavan.find({ coach_id: thisUser.coach_id })
-            let list = '=================\n'
-            padavans.forEach((pad) => {
-               list += `${pad.full_name} - ${pad.points}\n`
-            })
+            if (!thisUser) {
+               thisUser = await Coach.findOne({ vk_id: userID })
+            }
+            let padavans = await Padavan.find({ coach_id: thisUser.coach_id }).sort({ points: -1 })
+            let list = 'Список пуст'
+            if (padavans.length != 0) {
+               list = '===========================\n'
+               let i = 1
+               padavans.forEach((pad) => {
+                  list += `${i}. ${pad.full_name} - ${pad.points} ${wordEndings(pad.points, [
+                     ' балл',
+                     ' балла',
+                     ' баллов',
+                  ])}\n`
+                  i++
+               })
+            }
             ctx.reply(list, null, kbd.padavanMainMenu)
             break
          case 'bonus':
@@ -120,6 +133,9 @@ bot.on(async (ctx) => {
             const coach = await Coach.findOne({ vk_id: userID })
             await Padavan.deleteMany({ coach_id: coach.coach_id })
             ctx.reply('Список учеников очищен', null, kbd.menu)
+            break
+         case 'exit':
+            ctx.reply('Меню', null, kbd.menu)
             break
 
          case 'send_question':
@@ -200,7 +216,7 @@ bot.on(async (ctx) => {
    }
 })
 
-app.post('/', bot.webhookCallback)
+app.post('/bot', bot.webhookCallback)
 
 async function start() {
    try {

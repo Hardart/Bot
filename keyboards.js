@@ -12,6 +12,7 @@ const mainMenu = Markup.keyboard([
    [Markup.button('Настройка учеников', 'secondary', { value: 'padavan_config' })],
    [Markup.button('Настройки тренеров', 'secondary', { value: 'coach_config' })],
    [Markup.button('Настройки тестов', 'secondary', { value: 'test_config' })],
+   [Markup.button('Выход', 'negative', { value: 'exit' })],
 ]).oneTime()
 
 const menu = Markup.keyboard([

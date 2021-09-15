@@ -40,7 +40,7 @@ const inviting = new Scene( // удалить ученика
          let payload = JSON.parse(ctx.message.payload)
          if (payload.value == 'who') {
             ctx.reply('Не знаю')
-            fromBegin(ctx, 'accept_invite')
+            ctx.scene.enter('accept_invite')
          } else {
             ctx.session.coachId = payload
             const coach = await Coach.findOne({ coach_id: payload })
@@ -54,8 +54,21 @@ const inviting = new Scene( // удалить ученика
       if (ctx.message.payload) {
          ctx.scene.next()
          let payload = JSON.parse(ctx.message.payload)
+         const groupId = ctx.groupId
+         const msgId = ctx.message.id
+         const userID = ctx.message.from_id
          switch (payload.value) {
             case 'yes':
+               await api('messages.send', {
+                  message: `У тебя в команде пополнение\nСсылка на диалог: https://vk.com/gim${groupId}?sel=${userID}`,
+                  user_id: userID,
+                  forward: {
+                     peer_id: userID,
+                     message_ids: [msgId],
+                  },
+                  access_token: process.env.VK_TOKEN,
+                  random_id: 0,
+               })
                await query.add(
                   'padavans',
                   ctx.session.user.id,
@@ -72,6 +85,7 @@ const inviting = new Scene( // удалить ученика
                )
                break
             case 'no':
+               console.log('1')
                ctx.scene.enter('accept_invite')
                break
          }
@@ -103,6 +117,7 @@ const inviting = new Scene( // удалить ученика
                }, 5000)
                break
             case 'no':
+               await Padavan.deleteOne({ vk_id: ctx.session.user.id })
                ctx.scene.enter('accept_invite')
                break
          }

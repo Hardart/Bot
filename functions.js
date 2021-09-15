@@ -88,4 +88,18 @@ module.exports = {
          ;[array[i], array[j]] = [array[j], array[i]]
       }
    },
+   wordEndings: function (value = Number, words = Array) {
+      let num = Math.abs(value) % 100
+      let num1 = num % 10
+      if (num > 10 && num < 20) {
+         return words[2]
+      }
+      if (num1 > 1 && num1 < 5) {
+         return words[1]
+      }
+      if (num1 == 1) {
+         return words[0]
+      }
+      return words[2]
+   },
 }
