@@ -45,15 +45,7 @@ const deletePadScene = scenes.deletePadavan
 const cleanPoints = scenes.cleanPoints
 const sendToCoach = scenes.send
 const session = new Session()
-const stage = new Stage(
-	addScene,
-	changeScene,
-	deleteScene,
-	addPadScene,
-	deletePadScene,
-	cleanPoints,
-	sendToCoach
-)
+const stage = new Stage(addScene, changeScene, deleteScene, addPadScene, deletePadScene, cleanPoints, sendToCoach)
 
 bot.use(session.middleware())
 bot.use(stage.middleware())
